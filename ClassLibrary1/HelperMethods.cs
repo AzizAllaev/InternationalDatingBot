@@ -10,7 +10,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace HelperNamespace
 {
-	public static class UpdateHandlerMethods
+	public static class HelperMethods
 	{
 		public static string ReturnNewMessage(Update update)
 		{
