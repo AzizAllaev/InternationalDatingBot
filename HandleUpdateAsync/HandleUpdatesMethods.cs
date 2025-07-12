@@ -23,17 +23,17 @@ namespace HandleUpdate
 			switch (text)
 			{
 				case "/start":
-					await ModesHandler.MainMenuMode(bot, update, clt);
+					await ModesHandlers.MainMenuMode(bot, update, clt);
 					break;
 				case "Профиль👤":
-					await ModesHandler.ProfileMode(bot, update, clt);
+					await ModesHandlers.ProfileMode(bot, update, clt);
 					break;
 				case "Выбор кандидата🪩":
 					break;
 				case "Убарть себя из списка📌":
 					break;
 				case "Вернуться назад":
-					await ModesHandler.MainMenuMode(bot, update, clt);
+					await ModesHandlers.MainMenuMode(bot, update, clt);
 					break;
 			}
 		}

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClassLibrary1\HelperNamespce.csproj" />
+    <ProjectReference Include="..\MainMenu\ModesLogic.csproj" />
   </ItemGroup>
 
 </Project>
