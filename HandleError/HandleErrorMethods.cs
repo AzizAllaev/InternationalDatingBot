@@ -15,7 +15,8 @@ namespace HandleError
 	{
 		public static async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken token)
 		{
-
+			Console.WriteLine("Ошибка кода");
+			throw new Exception("Фатальная ошибка, бот временно прекращает работу");
 		}
 
 	}
