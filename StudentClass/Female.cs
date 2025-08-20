@@ -8,7 +8,7 @@
 		{
 			return _topChoises[0];
 		}
-		public IReadOnlyList<Person> GetStudents()
+		public IReadOnlyList<Female> GetStudents()
 		{
 			return _topChoises;
 		}
@@ -27,7 +27,7 @@
 		{
 			return _topChoises[0];
 		}
-		public IReadOnlyList<Person> GetStudents()
+		public IReadOnlyList<Male> GetStudents()
 		{
 			return _topChoises;
 		}

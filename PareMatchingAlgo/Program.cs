@@ -57,26 +57,44 @@ namespace PareMatchingAlgo
 			}
 		}
 
-		#region Algoritm to make pares
-		static void RunAlgoritm(List<Female> females, List<Male> males)
+		#region Algoritm to make pairs
+		static void RunAlgoritm(List<Female> females, List<Male> males, PairManager manager)
 		{
-			for(int i = 0; i < males.Count - 1; i++)
+			Queue<Male> maleQueue = new Queue<Male>(males);
+			Queue<Female> femaleQueue = new Queue<Female>(females);
+
+			while (maleQueue.Count > 0 && femaleQueue.Count > 0)
 			{
-				var selectedMale = males[i];
-				var TopChoise = selectedMale.GetStudents();
-				if (!TopChoise[0].InPair)
+				var selectedmale = maleQueue.Dequeue();
+
+				if (!selectedmale.InPair)
 				{
-					Pair newpair = new Pair();
-					newpair.Male = selectedMale.Id;
-					newpair.
+					var toplist = selectedmale.GetStudents();
+					var queueList = new Queue<Female>(toplist);
+					while (true)
+					{
+						var actualfemale = queueList.Dequeue();
+						if (actualfemale.InPair)
+						{
+							var toplistOfFemale = actualfemale.GetStudents();
+							if (toplistOfFemale.Contains(selectedmale))
+							{
+								var PairOfFemale = manager.FindPairByParticipant(actualfemale.Id);
+								int positionOfPairedMale = toplistOfFemale.ToList().IndexOf(males.Single(male => male.Id == PairOfFemale.Male));
+								int positionOfactualmale = toplistOfFemale.ToList().IndexOf(selectedmale);
+								if(positionOfPairedMale < positionOfactualmale)
+								{
+
+								}
+							}
+						}
+
+					}
 				}
 			}
 		}
 
-		static void CheckStatus(Male male, List<Female> ListOfTopChoise, List<Female> females, List<Male> males)
-		{
-		}
-
+		static 
 		#endregion
 
 		#region Methods to show choises
