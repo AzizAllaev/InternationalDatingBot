@@ -15,17 +15,11 @@ namespace StudentClass
 		{
 			if (male.InPair)
 			{
-				var previousPair = FindPairByParticipant(male.Id);
-				var previousFemale = females.Single(female => female.Id == previousPair.Female);
-				previousFemale.InPair = false;
-				DeletePairById(previousPair.Id);
+				BreakExistingPair(male.Id, males, females);
 			}
 			if (female.InPair)
 			{
-				var previousPair = FindPairByParticipant(female.Id);
-				var previousMale = males.Single(male => male.Id == previousPair.Male);
-				previousMale.InPair = false;
-				DeletePairById(previousPair.Id);
+				BreakExistingPair(female.Id, males, females);
 			}
 
 			male.InPair = true;
@@ -47,7 +41,7 @@ namespace StudentClass
 		}
 		public void DeletePairByPersonId(int PersonId)
 		{
-			var a = FindPairByParticipant(pairs, PersonId);
+			var a = FindPairByParticipant(PersonId);
 			if (a != null)
 			{
 				DeletePairByObject(a);
@@ -63,6 +57,23 @@ namespace StudentClass
 		}
 
 
-		void BreakExistingPair()
+		void BreakExistingPair(int personId, List<Male> males, List<Female> females)
+		{
+			var pair = FindPairByParticipant(personId);
+			if (pair == null)
+				return;
+			var male = males.FirstOrDefault(p => p.Id == pair.Male);
+			var female = females.FirstOrDefault(fem => fem.Id == pair.Female);
+			if (male != null)
+			{
+				male.InPair = false;
+			}
+			if(female != null)
+			{
+				female.InPair = false;
+			}
+			DeletePairByObject(pair);
+		}
 	}
 }
+	

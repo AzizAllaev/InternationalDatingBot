@@ -58,22 +58,21 @@ namespace PareMatchingAlgo
 		}
 
 		#region Algoritm to make pairs
-		static void RunAlgoritm(List<Female> females, List<Male> males, PairManager manager)
+		void RunAlgoritm(List<Female> females, List<Male> males, PairManager manager)
 		{
 			Queue<Male> maleQueue = new Queue<Male>(males);
-			Queue<Female> femaleQueue = new Queue<Female>(females);
 
-			while (maleQueue.Count > 0 && femaleQueue.Count > 0)
+			while (maleQueue.Count > 0)
 			{
 				var selectedmale = maleQueue.Dequeue();
 
 				if (!selectedmale.InPair)
 				{
-					var toplist = selectedmale.GetStudents();
-					var queueList = new Queue<Female>(toplist);
-					while (true)
+					var TopChoiseOfMale = selectedmale.GetStudents();
+					var queueListOfChoises = new Queue<Female>(TopChoiseOfMale);
+					while (queueListOfChoises.Count > 0)
 					{
-						var actualfemale = queueList.Dequeue();
+						var actualfemale = queueListOfChoises.Dequeue();
 						if (actualfemale.InPair)
 						{
 							var toplistOfFemale = actualfemale.GetStudents();
@@ -82,19 +81,22 @@ namespace PareMatchingAlgo
 								var PairOfFemale = manager.FindPairByParticipant(actualfemale.Id);
 								int positionOfPairedMale = toplistOfFemale.ToList().IndexOf(males.Single(male => male.Id == PairOfFemale.Male));
 								int positionOfactualmale = toplistOfFemale.ToList().IndexOf(selectedmale);
-								if(positionOfPairedMale < positionOfactualmale)
+								if(positionOfPairedMale > positionOfactualmale)
 								{
-
+									manager.AddPair(selectedmale, actualfemale, males, females);
+									break;
 								}
 							}
 						}
-
+						if (!actualfemale.InPair)
+						{
+							manager.AddPair(selectedmale, actualfemale, males, females);
+							break;
+						}
 					}
 				}
 			}
 		}
-
-		static 
 		#endregion
 
 		#region Methods to show choises
