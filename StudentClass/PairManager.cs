@@ -31,6 +31,10 @@ namespace StudentClass
 			pair.Female = female.Id;
 			pairs.Add(pair);
 		}
+		public IReadOnlyList<Pair> ReturnPairs()
+		{
+			return pairs;
+		}
 		public void DeletePairById(int id)
 		{
 			var pairToRemove = pairs.FirstOrDefault(p => p.Id == id);
@@ -57,6 +61,7 @@ namespace StudentClass
 		}
 
 
+		#region
 		void BreakExistingPair(int personId, List<Male> males, List<Female> females)
 		{
 			var pair = FindPairByParticipant(personId);
@@ -74,6 +79,7 @@ namespace StudentClass
 			}
 			DeletePairByObject(pair);
 		}
+		#endregion
 	}
 }
 	

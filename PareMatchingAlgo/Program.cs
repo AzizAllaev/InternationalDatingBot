@@ -6,13 +6,14 @@ namespace PareMatchingAlgo
 	{
 		static void Main(string[] args)
 		{
-			// Сами юзеры
+			// Сами пользователи
 			List<Female> females = new List<Female>();
 			List<Male> males = new List<Male>();
+			PairManager manager = new PairManager();
 
 			while (true)
 			{
-				Console.WriteLine("1 Add male || 2 Add female || 3 Add to choises || 4 Show choises");
+				Console.WriteLine("1 Add male || 2 Add female || 3 Add to choises || 4 Show choises || 5 Show result");
 				ConsoleKeyInfo mess = Console.ReadKey(intercept:true);
 				switch(mess.Key)
 				{
@@ -36,12 +37,15 @@ namespace PareMatchingAlgo
 						ShowChoises(females, males);
 						Console.Clear();
 						break;
+					case ConsoleKey.D5:
+						Console.Clear();
+						RunAlgoritm(females, males, manager);
+						ShowPairs(manager, males, females);
+						Console.Clear();
+						break;
 				}
 			}
 		}
-
-		
-		
 
 		static void AddTopChoises(List<Female> females, List<Male> males)
 		{
@@ -58,8 +62,24 @@ namespace PareMatchingAlgo
 		}
 
 		#region Algoritm to make pairs
-		void RunAlgoritm(List<Female> females, List<Male> males, PairManager manager)
-		{
+
+		static void ShowPairs(PairManager manager, List<Male> males, List<Female> females)
+		{ 
+			var ListOfPair = manager.ReturnPairs();
+			int i = 0;
+			foreach (var pair in ListOfPair)
+			{
+				i++;
+				var male = males.FirstOrDefault(mal => mal.Id == pair.Male);
+				var female = females.FirstOrDefault(femal => femal.Id == pair.Female);
+				if (male != null && female != null) 
+					Console.Write($"{male.Name} <=> {female.Name}");
+			}
+			Console.ReadLine();
+		}
+
+		static void RunAlgoritm(List<Female> females, List<Male> males, PairManager manager)
+		{ 
 			Queue<Male> maleQueue = new Queue<Male>(males);
 
 			while (maleQueue.Count > 0)
@@ -129,44 +149,52 @@ namespace PareMatchingAlgo
 
 		static void ChoiseHandlerFemale(List<Female> females, List<Male> males)
 		{
-			Console.Clear();
-			var a = ReturnFemaleUser(females);
+			try
+			{
+				Console.Clear();
+				var a = ReturnFemaleUser(females);
 
-			Console.WriteLine($"User ID: {a.Id} || Name: {a.Name} || Now you can add choises to this user");
-			Console.WriteLine("To add user press 1");
-			ConsoleKeyInfo mess1 = Console.ReadKey();
-			if (mess1.Key == ConsoleKey.D1)
-				ChoiseAddFemale(males, a);
+				Console.WriteLine($"User ID: {a.Id} || Name: {a.Name} || Now you can add choises to this user");
+				Console.WriteLine("To add user press 1");
+				ConsoleKeyInfo mess1 = Console.ReadKey();
+				if (mess1.Key == ConsoleKey.D1)
+					ChoiseAddFemale(males, a);
+			}
+			catch (Exception ex) { Console.WriteLine(ex.Message); }
 		}
 
 		static void ChoiseAddFemale(List<Male> males, Female person)
 		{
-			Console.Clear();
-			bool b = true;
-			while (b)
+			try
 			{
-				var a = ReturnMaleUser(males);
-				Console.WriteLine($"Add user {a.Name} || To add press Enter... || To cancel press 1");
-				ConsoleKeyInfo keyInfo = Console.ReadKey();
-				switch (keyInfo.Key)
+				Console.Clear();
+				bool b = true;
+				while (b)
 				{
-					case ConsoleKey.Enter:
-						person.AddToChoises(a);
-						break;
-					case ConsoleKey.D1:
+					var a = ReturnMaleUser(males);
+					Console.WriteLine($"Add user {a.Name} || To add press Enter... || To cancel press 1");
+					ConsoleKeyInfo keyInfo = Console.ReadKey();
+					switch (keyInfo.Key)
+					{
+						case ConsoleKey.Enter:
+							person.AddToChoises(a);
+							break;
+						case ConsoleKey.D1:
+							b = false;
+							break;
+					}
+					Console.WriteLine("User successfully added to top, to exti press 1");
+					ConsoleKeyInfo keyInfo1 = Console.ReadKey();
+					if (keyInfo1.Key == ConsoleKey.D1)
 						b = false;
-						break;
 				}
-				Console.WriteLine("User successfully added to top, to exti press 1");
-				ConsoleKeyInfo keyInfo1 = Console.ReadKey();
-				if (keyInfo1.Key == ConsoleKey.D1)
-					b = false;
 			}
+			catch (Exception ex) { Console.WriteLine(ex.Message); }
 		}
-		#endregion
+			#endregion
 
 		#region Male
-		static void ChoiseHandlerMale(List<Female> females, List<Male> males)
+			static void ChoiseHandlerMale(List<Female> females, List<Male> males)
 		{
 			Console.Clear();
 			var a = ReturnMaleUser(males);
@@ -223,24 +251,42 @@ namespace PareMatchingAlgo
 		public static void AddNewM(List<Male> male)
 		{
 			Console.Write("Введите ID: ");
-			int id = Convert.ToInt32(Console.ReadLine());
-			Console.Write("Введите имя: ");
-			string name = Console.ReadLine();
-			Male m1 = new Male();
-			m1.Id = id;
-			m1.Name = name;
-			male.Add(m1);
+			try
+			{
+				int id = Convert.ToInt32(Console.ReadLine());
+				Console.Write("Введите имя: ");
+				string name = Console.ReadLine();
+				Male m1 = new Male();
+				m1.Id = id;
+				m1.Name = name;
+				male.Add(m1);
+			}
+			catch (Exception ex)
+			{
+				Console.Clear();
+				Console.WriteLine("Ошибка при вводе");
+				Console.ReadLine();
+			}
 		}
 		public static void AddNewG(List<Female> female)
 		{
-			Console.Write("Введите ID: ");
-			int id = Convert.ToInt32(Console.ReadLine());
-			Console.Write("Введите имя: ");
-			string name = Console.ReadLine();
-			Female f1 = new Female();
-			f1.Id = id;
-			f1.Name = name;
-			female.Add(f1);
+			try
+			{
+				Console.Write("Введите ID: ");
+				int id = Convert.ToInt32(Console.ReadLine());
+				Console.Write("Введите имя: ");
+				string name = Console.ReadLine();
+				Female f1 = new Female();
+				f1.Id = id;
+				f1.Name = name;
+				female.Add(f1);
+			}
+			catch (Exception ex)
+			{
+				Console.Clear();
+				Console.WriteLine("Ошибка при вводе");
+				Console.ReadLine();
+			}
 		}
 		#endregion
 	}
