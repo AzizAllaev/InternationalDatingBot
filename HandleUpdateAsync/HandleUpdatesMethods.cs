@@ -9,6 +9,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using static System.Net.Mime.MediaTypeNames;
 using ModesLogic;
+using HelperNamespace;
 
 
 namespace HandleUpdate
@@ -19,22 +20,25 @@ namespace HandleUpdate
 		{
 			if (update.Message == null)
 				return;
-			string text = HelperNamespace.TelegramBotUtilities.ReturnNewMessage(update);
-			switch (text)
+			string ?text = TelegramBotUtilities.ReturnNewMessage(update);
+			if (text != null)
 			{
-				case "/start":
-					await ModesHandlers.MainMenuMode(bot, update, clt);
-					break;
-				case "Профиль👤":
-					await ModesHandlers.ProfileMode(bot, update, clt);
-					break;
-				case "Выбор кандидата🪩":
-					break;
-				case "Убарть себя из списка📌":
-					break;
-				case "Вернуться назад":
-					await ModesHandlers.MainMenuMode(bot, update, clt);
-					break;
+				switch (text)
+				{
+					case "/start":
+						await ModesHandlers.MainMenuMode(bot, update, clt);
+						break;
+					case "Профиль👤":
+						await ModesHandlers.ProfileMode(bot, update, clt);
+						break;
+					case "Выбор кандидата🪩":
+						break;
+					case "Убарть себя из списка📌":
+						break;
+					case "Вернуться назад":
+						await ModesHandlers.MainMenuMode(bot, update, clt);
+						break;
+				}
 			}
 		}
 

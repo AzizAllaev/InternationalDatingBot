@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HandleError\HandleError.csproj" />
     <ProjectReference Include="..\HandleUpdateAsync\HandleUpdate.csproj" />
+    <ProjectReference Include="..\ModesLogic\ModesLogic.csproj" />
   </ItemGroup>
 
 </Project>

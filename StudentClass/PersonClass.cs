@@ -11,6 +11,5 @@ namespace StudentClass
 		public int Id;
 		private int _group;
 		public string Name;
-		public bool InPair;
 	}
 }

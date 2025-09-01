@@ -70,10 +70,10 @@ namespace PareMatchingAlgo
 			foreach (var pair in ListOfPair)
 			{
 				i++;
-				var male = males.FirstOrDefault(mal => mal.Id == pair.Male);
-				var female = females.FirstOrDefault(femal => femal.Id == pair.Female);
+				var male = males.FirstOrDefault(mal => mal.Id == pair.Male.Id);
+				var female = females.FirstOrDefault(femal => femal.Id == pair.Female.Id);
 				if (male != null && female != null) 
-					Console.Write($"{male.Name} <=> {female.Name}");
+					Console.Write($"| {male.Name} <=> {female.Name} |");
 			}
 			Console.ReadLine();
 		}
@@ -85,37 +85,45 @@ namespace PareMatchingAlgo
 			while (maleQueue.Count > 0)
 			{
 				var selectedmale = maleQueue.Dequeue();
-
-				if (!selectedmale.InPair)
+				if (!manager.IsInPair(selectedmale))
 				{
 					var TopChoiseOfMale = selectedmale.GetStudents();
-					var queueListOfChoises = new Queue<Female>(TopChoiseOfMale);
+					Queue<Female> queueListOfChoises = new Queue<Female>(TopChoiseOfMale);
 					while (queueListOfChoises.Count > 0)
 					{
-						var actualfemale = queueListOfChoises.Dequeue();
-						if (actualfemale.InPair)
-						{
-							var toplistOfFemale = actualfemale.GetStudents();
-							if (toplistOfFemale.Contains(selectedmale))
-							{
-								var PairOfFemale = manager.FindPairByParticipant(actualfemale.Id);
-								int positionOfPairedMale = toplistOfFemale.ToList().IndexOf(males.Single(male => male.Id == PairOfFemale.Male));
-								int positionOfactualmale = toplistOfFemale.ToList().IndexOf(selectedmale);
-								if(positionOfPairedMale > positionOfactualmale)
-								{
-									manager.AddPair(selectedmale, actualfemale, males, females);
-									break;
-								}
-							}
-						}
-						if (!actualfemale.InPair)
-						{
-							manager.AddPair(selectedmale, actualfemale, males, females);
-							break;
-						}
+						Comparing(queueListOfChoises, manager, selectedmale, females, males, maleQueue);
 					}
 				}
 			}
+		}
+		static void Comparing(Queue<Female> queueOfTopFemales, PairManager manager, Male selectedMale, List<Female> females, List<Male> males, Queue<Male> maleQueue)
+		{
+			Female female = queueOfTopFemales.Dequeue();
+			if (manager.IsInPair(female))
+			{
+				Matching(female, selectedMale, manager, females, males, maleQueue);
+			}
+			else
+			{
+				manager.AddPair(selectedMale, female, males, females);
+			}
+		}
+		static void Matching(Female female, Male male, PairManager manager, List<Female> females, List<Male> males, Queue<Male> malesqueue)
+		{
+			var femalepair = manager.FindPairByParticipant(female.Id);
+			var topchoisesOfFemale = female.GetStudents();
+			if (topchoisesOfFemale.Contains(male))
+			{
+				int positionOfPrevious = topchoisesOfFemale.ToList().IndexOf(femalepair.Male);
+				int positionOfmale = topchoisesOfFemale.ToList().IndexOf(male);
+
+				if(positionOfPrevious > positionOfmale)
+				{
+					manager.AddPair(male, female, males, females);
+					malesqueue.Enqueue(femalepair.Male);
+				}
+			}
+
 		}
 		#endregion
 
@@ -153,12 +161,14 @@ namespace PareMatchingAlgo
 			{
 				Console.Clear();
 				var a = ReturnFemaleUser(females);
-
-				Console.WriteLine($"User ID: {a.Id} || Name: {a.Name} || Now you can add choises to this user");
-				Console.WriteLine("To add user press 1");
-				ConsoleKeyInfo mess1 = Console.ReadKey();
-				if (mess1.Key == ConsoleKey.D1)
-					ChoiseAddFemale(males, a);
+				if (a != null)
+				{
+					Console.WriteLine($"User ID: {a.Id} || Name: {a.Name} || Now you can add choises to this user");
+					Console.WriteLine("To add user press 1");
+					ConsoleKeyInfo mess1 = Console.ReadKey();
+					if (mess1.Key == ConsoleKey.D1)
+						ChoiseAddFemale(males, a);
+				}
 			}
 			catch (Exception ex) { Console.WriteLine(ex.Message); }
 		}
@@ -194,16 +204,18 @@ namespace PareMatchingAlgo
 			#endregion
 
 		#region Male
-			static void ChoiseHandlerMale(List<Female> females, List<Male> males)
+		static void ChoiseHandlerMale(List<Female> females, List<Male> males)
 		{
 			Console.Clear();
 			var a = ReturnMaleUser(males);
-
-			Console.WriteLine($"User ID: {a.Id} || Name: {a.Name} || Now you can add choises to this user");
-			Console.WriteLine("To add user press 1");
-			ConsoleKeyInfo mess1 = Console.ReadKey();
-			if (mess1.Key == ConsoleKey.D1)
-				ChoiseAddMale(females, a);
+			if (a != null)
+			{
+				Console.WriteLine($"User ID: {a.Id} || Name: {a.Name} || Now you can add choises to this user");
+				Console.WriteLine("To add user press 1");
+				ConsoleKeyInfo mess1 = Console.ReadKey();
+				if (mess1.Key == ConsoleKey.D1)
+					ChoiseAddMale(females, a);
+			}
 		}
 		static void ChoiseAddMale(List<Female> females, Male person)
 		{
@@ -232,18 +244,18 @@ namespace PareMatchingAlgo
 		#endregion
 
 		#region Methods to find users
-		static Female ReturnFemaleUser(List<Female> female)
+		static Female? ReturnFemaleUser(List<Female> female)
 		{
 			Console.Write("Write ID: ");
 			int Id = Convert.ToInt32(Console.ReadLine());
-			return female.Single(p => p.Id == Id);
+			return female.FirstOrDefault(p => p.Id == Id);
 		}
-		static Male ReturnMaleUser(List<Male> male)
+		static Male? ReturnMaleUser(List<Male> male)
 		{
 			Console.Write("Write ID: ");
 			int Id = Convert.ToInt32(Console.ReadLine());
 
-			return male.Single(p => p.Id == Id);
+			return male.FirstOrDefault(p => p.Id == Id);
 		}
 		#endregion
 

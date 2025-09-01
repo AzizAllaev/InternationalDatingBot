@@ -1,5 +1,4 @@
-﻿using HelperNamespace;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +7,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using static System.Net.Mime.MediaTypeNames;
+using HelperNamespace;
 
 namespace ModesLogic
 {

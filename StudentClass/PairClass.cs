@@ -9,8 +9,8 @@ namespace StudentClass
 	public class Pair
 	{
 		public int Id { get; }
-		public int Male {  get; set; }
-		public int Female { get; set; }
+		public Male? Male {  get; set; }
+		public Female? Female { get; set; }
 
 		public Pair(int id)
 		{

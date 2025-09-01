@@ -11,7 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MainMenu\ModesLogic.csproj" />
+    <ProjectReference Include="..\HelperNamespace\HelperNamespce.csproj" />
+    <ProjectReference Include="..\ModesLogic\ModesLogic.csproj" />
   </ItemGroup>
 
 </Project>

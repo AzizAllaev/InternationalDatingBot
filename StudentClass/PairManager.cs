@@ -11,24 +11,41 @@ namespace StudentClass
 		private List<Pair> pairs = new();
 		private int amountOfPares;
 
+		public bool IsInPair(Person person)
+		{
+			var pair = FindPairByParticipant(person.Id);
+			if(pair != null)
+			{
+				if(pair.Male != null && pair.Female != null)
+				{
+					return true;
+				}
+				else 
+				{
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
 		public void AddPair(Male male, Female female, List<Male> males, List<Female> females)
 		{
-			if (male.InPair)
+			if (IsInPair(male))
 			{
-				BreakExistingPair(male.Id, males, females);
+				DeletePairByPersonId(male.Id);
 			}
-			if (female.InPair)
+			if (IsInPair(female))
 			{
-				BreakExistingPair(female.Id, males, females);
+				DeletePairByPersonId(female.Id);
 			}
 
-			male.InPair = true;
-			female.InPair = true;
 
 			amountOfPares += 1;
 			Pair pair = new Pair(amountOfPares);
-			pair.Male = male.Id;
-			pair.Female = female.Id;
+			pair.Male = male;
+			pair.Female = female;
 			pairs.Add(pair);
 		}
 		public IReadOnlyList<Pair> ReturnPairs()
@@ -57,29 +74,9 @@ namespace StudentClass
 		}
 		public Pair? FindPairByParticipant(int PersonId)
 		{
-			return pairs.FirstOrDefault(p => p.Male == PersonId || p.Female == PersonId);
+			return pairs.FirstOrDefault(p => p.Female.Id == PersonId || p.Male.Id == PersonId);
 		}
 
-
-		#region
-		void BreakExistingPair(int personId, List<Male> males, List<Female> females)
-		{
-			var pair = FindPairByParticipant(personId);
-			if (pair == null)
-				return;
-			var male = males.FirstOrDefault(p => p.Id == pair.Male);
-			var female = females.FirstOrDefault(fem => fem.Id == pair.Female);
-			if (male != null)
-			{
-				male.InPair = false;
-			}
-			if(female != null)
-			{
-				female.InPair = false;
-			}
-			DeletePairByObject(pair);
-		}
-		#endregion
 	}
 }
 	
