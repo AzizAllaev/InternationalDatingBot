@@ -10,4 +10,9 @@
     <PackageReference Include="Telegram.Bot" Version="22.7.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HelperNamespace\HelperNamespce.csproj" />
+    <ProjectReference Include="..\ModesLogic\ModesLogic.csproj" />
+  </ItemGroup>
+
 </Project>

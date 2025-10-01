@@ -33,15 +33,7 @@ namespace HelperNamespace
 		}
 		public static long? ReturnChatID(Update update)
 		{
-			if(update.Message != null) 
-				return update.Message.Chat.Id;
-			if (update.CallbackQuery != null)
-				if(update.CallbackQuery.Message != null)
-					return update.CallbackQuery.Message.Chat.Id;
-			if(update.EditedMessage != null)
-				return update.EditedMessage.Chat.Id;
-
-			return null;
+			return update?.Message?.Chat?.Id;
 		}
 		public static string? ReturnNewMessage(Update update)
 		{
@@ -51,11 +43,9 @@ namespace HelperNamespace
 	
 			return null;
 		}
-		public static string ReturnUsername(Update update)
+		public static string? ReturnUsername(Update update)
 		{
-			var user = update.Message.From;
-			string username = user.Username;
-			return username;
+			return update?.Message?.From?.Username;
 		}
 	}
 
@@ -67,15 +57,14 @@ namespace HelperNamespace
 			{
 				new KeyboardButton[]{ "Профиль👤" },
 				new KeyboardButton[]{ "Выбор кандидата🪩" },
-				new KeyboardButton[]{ "Убарть себя из списка📌" },
-				new KeyboardButton[]{ "Вернуться назад" }
+				new KeyboardButton[]{ "Убарть себя из списка📌" }
 			})
 			{
 				ResizeKeyboard = true,
 				OneTimeKeyboard = false
 			};
 		}
-		public static ReplyMarkup MakeReturnKeyboard()
+		public static ReplyKeyboardMarkup MakeReturnKeyboard()
 		{
 			return new ReplyKeyboardMarkup(new[]
 			{

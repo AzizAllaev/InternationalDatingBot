@@ -18,7 +18,6 @@ namespace ModesLogic
 		{
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
 			var username = TelegramBotUtilities.ReturnUsername(update);
-			Console.WriteLine($"Пользователь {username} запустил бот");
 			Message message = await TelegramBotUtilities.DisplayMainMenuKeyboard(bot, chatID, "Выберите действие: ", clt);
 		}
 		#endregion
@@ -28,15 +27,24 @@ namespace ModesLogic
 		{
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.MakeReturnKeyboard();
-			string username = TelegramBotUtilities.ReturnUsername(update);
-			string messageForButton = TelegramBotUtilities.ReturnProfileText(username);
-			Message message = await bot.SendMessage(
-				chatId: chatID,
-				text: messageForButton,
-				replyMarkup: keyboard,
-				cancellationToken: clt
-				);
+			string? username= TelegramBotUtilities.ReturnUsername(update);
+			string? messageForButton = TelegramBotUtilities.ReturnProfileText(username);
+			if (messageForButton != null)
+			{
+				if (chatID != null)
+				{
+					Message message = await bot.SendMessage(
+						chatId: chatID.Value,
+						text: messageForButton,
+						replyMarkup: keyboard,
+						cancellationToken: clt
+						);
+				}
+			}
 		}
+		#endregion
+
+		#region SelectMenu
 		#endregion
 	}
 }
