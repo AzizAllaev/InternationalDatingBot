@@ -1,4 +1,5 @@
-﻿using Telegram.Bot;
+﻿using Microsoft.EntityFrameworkCore;
+using Telegram.Bot;
 using Handlers;
 
 namespace InternationalDating
@@ -18,5 +19,11 @@ namespace InternationalDating
 
 			Console.ReadLine();
 		}
+
+	}
+
+	public class AppDbContext : DbContext
+	{
+		public DbSet<>
 	}
 }
