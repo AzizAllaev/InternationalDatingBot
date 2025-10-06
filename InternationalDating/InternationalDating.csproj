@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Handlers\Handlers.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\ModesLogic\ModesLogic.csproj" />
   </ItemGroup>
 

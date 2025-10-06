@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Handlers;
+using Models;
 
 namespace InternationalDating
 {
@@ -24,6 +25,20 @@ namespace InternationalDating
 
 	public class AppDbContext : DbContext
 	{
-		public DbSet<>
+		public DbSet<User> Users { get; set; }
+		public DbSet<Like> Likes { get; set; }
+		public DbSet<Group> Groups { get; set; }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+			optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=InterDating;Trusted_Connection=True;TrustServerCertificate=True;");
+		}
+
+		protected override void OnModelCreating(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<User>()
+				.HasMany(user => user.group)
+				.HasOne(g => g.users)
+		}
 	}
 }
