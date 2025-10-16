@@ -6,15 +6,16 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-	public class User
+	public class UserProfile
 	{
 		public int Id { get; set; }
 		public long TelegramID { get; set; }
 		public string? Username { get; set; }
-		public int Age { get; set; }
+		public int? Age { get; set; }
 		public string? Gender { get; set; }
 
 
+		public int? GroupID { get; set; }
 		public Group? group { get; set; }
 	}
 }

@@ -8,6 +8,8 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using static System.Net.Mime.MediaTypeNames;
 using HelperNamespace;
+using HelperNamespce;
+using Models;
 
 namespace ModesLogic
 {
@@ -29,22 +31,80 @@ namespace ModesLogic
 			var keyboard = Keyboards.MakeReturnKeyboard();
 			string? username= TelegramBotUtilities.ReturnUsername(update);
 			string? messageForButton = TelegramBotUtilities.ReturnProfileText(username);
-			if (messageForButton != null)
+			if (messageForButton != null && chatID != null)
 			{
-				if (chatID != null)
+				Message message = await bot.SendMessage(
+					chatId: chatID.Value,
+					text: messageForButton,
+					replyMarkup: keyboard,
+					cancellationToken: clt
+					);
+			}
+		}
+		#endregion 
+
+		#region SelectMenu
+		#endregion
+
+		#region Make proifle
+
+		public async Task StartUserRegistration(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user)
+		{
+			long? chatId = TelegramBotUtilities.ReturnChatID(update);
+			var keyboard = Keyboards.StartRegistrationKeyboard();
+			string TextToSend = TelegramBotUtilities.StartRegirstrationText();
+			if (TextToSend != null && chatId != null)
+			{
+				var message = await bot.SendMessage(
+					chatId: chatId.Value,
+					text: TextToSend,
+					replyMarkup: keyboard,
+					cancellationToken: cts
+					);
+			}
+			if(update.Message != null && update.Message.Text != null)
+			{
+				if(update.Message.Text == TextToSend)
 				{
-					Message message = await bot.SendMessage(
-						chatId: chatID.Value,
-						text: messageForButton,
-						replyMarkup: keyboard,
-						cancellationToken: clt
-						);
+
 				}
 			}
 		}
-		#endregion
 
-		#region SelectMenu
+
+		private async Task TakeData(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, long Chatid)
+		{
+
+		}
+
+
+		private async static Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, long Chatid)
+		{
+			var keyboard = Keyboards.TakeGenderKeyboard();
+			await bot.SendMessage(
+				chatId: Chatid,
+				text: "Ваш пол: ",
+				replyMarkup: keyboard,
+				cancellationToken: cts
+				);
+
+			if (update.Message != null && update.Message.Text != null)
+			{
+				if (update.Message.Text == "Парень")
+				{
+					user.Gender = "Male";
+				}
+				else if (update.Message.Text == "Девушка")
+				{
+					user.Gender = "Female";
+				}
+			}
+		}
+		private async static Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, long Chatid)
+		{
+
+		}
+
 		#endregion
 	}
 }

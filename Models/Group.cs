@@ -11,6 +11,6 @@ namespace Models
 		public int Id { get; set; }
 		public string? Name { get; set; }
 
-		public List<User> users { get; set; } = new List<User>();
+		public List<UserProfile> users { get; set; } = new List<UserProfile>();
 	}
 }

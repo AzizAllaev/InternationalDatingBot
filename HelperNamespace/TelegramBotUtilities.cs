@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HelperNamespce;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ namespace HelperNamespace
 {
 	public static class TelegramBotUtilities
 	{
+		#region Text
 		public static string ReturnProfileText(string username)
 		{
 			string text = $"Имя пользователя: {username}\n" +
@@ -20,6 +22,14 @@ namespace HelperNamespace
 				$"Данные профиля можно редактировать👌\n";
 			return text;
 		}
+		public static string StartRegirstrationText()
+		{
+			string text = "Начать заполнение профиля";
+			return text;
+		}
+		#endregion
+
+		#region User handler methods
 		public static async Task<Message> DisplayMainMenuKeyboard(ITelegramBotClient bot, long? ChatID, string TextWithButtons, CancellationToken cancellationToken)
 		{
 			var keyboard = Keyboards.MakeMainMenuKeyboard();
@@ -47,33 +57,6 @@ namespace HelperNamespace
 		{
 			return update?.Message?.From?.Username;
 		}
-	}
-
-	public static class Keyboards
-	{
-		public static ReplyKeyboardMarkup MakeMainMenuKeyboard()
-		{
-			return new ReplyKeyboardMarkup(new[]
-			{
-				new KeyboardButton[]{ "Профиль👤" },
-				new KeyboardButton[]{ "Выбор кандидата🪩" },
-				new KeyboardButton[]{ "Убарть себя из списка📌" }
-			})
-			{
-				ResizeKeyboard = true,
-				OneTimeKeyboard = false
-			};
-		}
-		public static ReplyKeyboardMarkup MakeReturnKeyboard()
-		{
-			return new ReplyKeyboardMarkup(new[]
-			{
-			new KeyboardButton[]{ "Вернуться назад" },
-			})
-			{
-				ResizeKeyboard = true,
-				OneTimeKeyboard = false
-			};
-		}
+		#endregion
 	}
 }

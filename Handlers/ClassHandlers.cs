@@ -27,6 +27,7 @@ namespace Handlers
 				{
 					case "/start":
 						await ModesHandlers.MainMenuMode(bot, update, clt);
+
 						break;
 					case "Профиль👤":
 						await ModesHandlers.ProfileMode(bot, update, clt);

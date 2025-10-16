@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HelperNamespace\HelperNamespce.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>
 
 </Project>

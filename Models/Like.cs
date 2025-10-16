@@ -10,7 +10,7 @@ namespace Models
 	{
 		public int Id { get; set; }
 
-		public User? Male { get; set; }
-		public User? Female { get; set; }
+		public UserProfile? Male { get; set; }
+		public UserProfile? Female { get; set; }
 	}
 }
