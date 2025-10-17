@@ -10,6 +10,7 @@ using static System.Net.Mime.MediaTypeNames;
 using HelperNamespace;
 using HelperNamespce;
 using Models;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ModesLogic
 {
@@ -78,33 +79,54 @@ namespace ModesLogic
 		}
 
 
-		private async static Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, long Chatid)
+		private async static Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user)
 		{
 			var keyboard = Keyboards.TakeGenderKeyboard();
-			await bot.SendMessage(
-				chatId: Chatid,
-				text: "Ваш пол: ",
-				replyMarkup: keyboard,
-				cancellationToken: cts
-				);
-
-			if (update.Message != null && update.Message.Text != null)
+			long? chatid = TelegramBotUtilities.ReturnChatID(update);
+			if (chatid != null)
 			{
-				if (update.Message.Text == "Парень")
+				await bot.SendMessage(
+					chatId: chatid,
+					text: "Ваш пол: ",
+					replyMarkup: keyboard,
+					cancellationToken: cts
+					);
+			}
+			var callbackData = update.CallbackQuery;
+			string? data = callbackData?.Data;
+
+			if (callbackData != null && data != null)
+			{
+				if(data == "Male")
 				{
 					user.Gender = "Male";
 				}
-				else if (update.Message.Text == "Девушка")
+				else if(data == "Female")
 				{
 					user.Gender = "Female";
 				}
 			}
 		}
-		private async static Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, long Chatid)
+		private async static Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, AppDbContext db)
 		{
+			long? chatid = TelegramBotUtilities.ReturnChatID(update);
+			var keyboard = Keyboards.TakeGroupKeyboard(db.Groups.ToList());
+			string? text = TelegramBotUtilities.AskGroupText();
+			if (chatid != null && keyboard != null)
+			{
+				await bot.SendMessage(
+					chatId: chatid,
+					text: text,
+					replyMarkup: keyboard,
+					cancellationToken: cts
+					);
+			}
 
+			var callbackData = update.CallbackQuery;
+			string? data = callbackData?.Data;
+			var findgroup = db.Groups.ToList().FirstOrDefault(grp => grp.Name == data);
+			user.group = findgroup;
 		}
-
 		#endregion
 	}
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot.Types.ReplyMarkups;
+using Models;
 
 namespace HelperNamespce
 {
@@ -44,39 +45,45 @@ namespace HelperNamespce
 				OneTimeKeyboard = false
 			};
 		}
-		public static ReplyKeyboardMarkup TakeGenderKeyboard()
+		public static InlineKeyboardMarkup TakeGenderKeyboard()
 		{
-			return new ReplyKeyboardMarkup(new[]
+            return new InlineKeyboardMarkup(new[]
+            {
+                new[]
+                {
+                    InlineKeyboardButton.WithCallbackData("Парень", "Male"),
+                    InlineKeyboardButton.WithCallbackData("Девушка", "Female")
+                }
+            });
+        }
+        public static InlineKeyboardMarkup TakeGroupKeyboard(List<Group> groups)
+        {
+			var buttons = new List<List<InlineKeyboardButton>>();
+
+			foreach(var group in groups)
 			{
-				new KeyboardButton[]{ "Парень" },
-				new KeyboardButton[]{ "Девушка" }
-			})
-			{
-				ResizeKeyboard = true,
-				OneTimeKeyboard = false
-			};
-		}
-		public static InlineKeyboardMarkup TakeGroupKeyboard()
-		{
-			return new InlineKeyboardMarkup(new[]
-			{
-				new[]
+				if(group != null && group.Name != null) 
+				buttons.Add(new List<InlineKeyboardButton>
 				{
-					InlineKeyboardButton.WithCallbackData("Парень", "Male"),
-					InlineKeyboardButton.WithCallbackData("Девушка", "Female")
-				}
-			});
-		}
-		public static InlineKeyboardMarkup TakeGroupKeyboard()
-		{
-			return new InlineKeyboardMarkup(new[]
-			{
-				new[]
-				{
-					InlineKeyboardButton.WithCallbackData("Парень", "Male"),
-					InlineKeyboardButton.WithCallbackData("Девушка", "Female")
-				}
-			});
-		}
-	}
+					InlineKeyboardButton.WithCallbackData(group.Name, $"{group.Name}") 
+				});
+			}
+			return new InlineKeyboardMarkup(buttons);
+        }
+        #region In progres...
+        //public static InlineKeyboardMarkup TakeGene()
+        //{
+        //	return new InlineKeyboardMarkup(new[]
+        //	{
+        //		new[]
+        //		{
+        //			InlineKeyboardButton.WithCallbackData("", ""),
+        //			InlineKeyboardButton.WithCallbackData("", "")
+        //		}
+        //	});
+        //}
+        #endregion
+    }
+
+
 }

@@ -27,6 +27,11 @@ namespace HelperNamespace
 			string text = "Начать заполнение профиля";
 			return text;
 		}
+		public static string AskGroupText()
+		{
+			string text = "Выберите вашу группу: ";
+			return text;
+		}
 		#endregion
 
 		#region User handler methods
