@@ -49,15 +49,15 @@ namespace ModesLogic
 
 		#region Make proifle
 
-		public async Task StartUserRegistration(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user)
+		public async Task StartUserRegistration(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, AppDbContext db)
 		{
-			long? chatId = TelegramBotUtilities.ReturnChatID(update);
+			long? chatID = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.StartRegistrationKeyboard();
 			string TextToSend = TelegramBotUtilities.StartRegirstrationText();
-			if (TextToSend != null && chatId != null)
+			if (TextToSend != null && chatID != null)
 			{
 				var message = await bot.SendMessage(
-					chatId: chatId.Value,
+					chatId: chatID,
 					text: TextToSend,
 					replyMarkup: keyboard,
 					cancellationToken: cts
@@ -67,15 +67,20 @@ namespace ModesLogic
 			{
 				if(update.Message.Text == TextToSend)
 				{
-
+					await TakeData(bot, update, cts, db);
 				}
 			}
 		}
 
 
-		private async Task TakeData(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, long Chatid)
+		private async Task TakeData(ITelegramBotClient bot, Update update, CancellationToken cts, AppDbContext db)
 		{
+			UserProfile user = new UserProfile();
+			await TakeGender(bot, update, cts, user);
+			await TakeGroup(bot, update, cts, user, db);
 
+			db.Users.Add(user);
+			db.SaveChanges();
 		}
 
 
@@ -125,8 +130,24 @@ namespace ModesLogic
 			var callbackData = update.CallbackQuery;
 			string? data = callbackData?.Data;
 			var findgroup = db.Groups.ToList().FirstOrDefault(grp => grp.Name == data);
-			user.group = findgroup;
+			if(findgroup != null) 
+			{
+				user.group = findgroup;
+			}
 		}
+
+
+
+
+
+		public static bool CheckStatus(Update update, AppDbContext db)
+		{
+			if (update.Message?.From == null)
+				return false; 
+			long telegramId = update.Message.From.Id;
+			return db.Users.Any(user => user.TelegramID == telegramId);
+		}
+
 		#endregion
 	}
 }

@@ -9,6 +9,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using Models;
 
 
 
@@ -23,11 +24,17 @@ namespace Handlers
 			string? text = TelegramBotUtilities.ReturnNewMessage(update);
 			if (text != null)
 			{
+				using AppDbContext db = new AppDbContext();
 				switch (text)
 				{
+					case "Начать заполнение профиля👁️":
+						break;
 					case "/start":
 						await ModesHandlers.MainMenuMode(bot, update, clt);
+						if (ModesLogic.ModesHandlers.CheckStatus(update, db))
+						{
 
+						}
 						break;
 					case "Профиль👤":
 						await ModesHandlers.ProfileMode(bot, update, clt);
