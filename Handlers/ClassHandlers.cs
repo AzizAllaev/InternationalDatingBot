@@ -19,33 +19,39 @@ namespace Handlers
 	{
 		public static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken clt)
 		{
-			if (update.Message == null)
-				return;
-			string? text = TelegramBotUtilities.ReturnNewMessage(update);
-			if (text != null)
+			if(update.CallbackQuery != null)
 			{
-				using AppDbContext db = new AppDbContext();
-				switch (text)
-				{
-					case "Начать заполнение профиля👁️":
-						break;
-					case "/start":
-						await ModesHandlers.MainMenuMode(bot, update, clt);
-						if (ModesLogic.ModesHandlers.CheckStatus(update, db))
-						{
 
-						}
-						break;
-					case "Профиль👤":
-						await ModesHandlers.ProfileMode(bot, update, clt);
-						break;
-					case "Выбор кандидата🪩":
-						break;
-					case "Убарть себя из списка📌":
-						break;
-					case "Вернуться назад":
-						await ModesHandlers.MainMenuMode(bot, update, clt);
-						break;
+			}
+			if (update.Message != null)
+			{
+				string? text = TelegramBotUtilities.ReturnNewMessage(update);
+				if (text != null)
+				{
+					using AppDbContext db = new AppDbContext();
+					switch (text)
+					{
+						case "Начать заполнение профиля👁️":
+
+							break;
+						case "/start":
+							await ModesHandlers.MainMenuMode(bot, update, clt);
+							if (ModesLogic.ModesHandlers.CheckStatus(update, db))
+							{
+								await ModesHandlers.StartUserRegistration(bot, update, clt);
+							}
+							break;
+						case "Профиль👤":
+							await ModesHandlers.ProfileMode(bot, update, clt);
+							break;
+						case "Выбор кандидата🪩":
+							break;
+						case "Убарть себя из списка📌":
+							break;
+						case "Вернуться назад":
+							await ModesHandlers.MainMenuMode(bot, update, clt);
+							break;
+					}
 				}
 			}
 		}

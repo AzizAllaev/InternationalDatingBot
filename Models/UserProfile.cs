@@ -14,7 +14,6 @@ namespace Models
 		public int? Age { get; set; }
 		public string? Gender { get; set; }
 
-
 		public int? GroupID { get; set; }
 		public Group? group { get; set; }
 	}

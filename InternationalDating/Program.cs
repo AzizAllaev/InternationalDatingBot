@@ -8,7 +8,7 @@ namespace InternationalDating
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             var bot = new TelegramBotClient("7709122756:AAHs1xvGGrShZ3U0MrJTKMwVsWGjJCfgdls");
 			using var cts = new CancellationTokenSource();

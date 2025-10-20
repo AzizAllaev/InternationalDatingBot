@@ -70,6 +70,7 @@ namespace HelperNamespce
 			}
 			return new InlineKeyboardMarkup(buttons);
         }
+
         #region In progres...
         //public static InlineKeyboardMarkup TakeGene()
         //{

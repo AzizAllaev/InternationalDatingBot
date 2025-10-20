@@ -10,32 +10,21 @@ using Telegram.Bot.Types;
 
 namespace Models
 {
+	/// <summary>
+	/// Migration command is:
+	/// Add-Migration MigrationName -StartupProject InternationalDating -Project Models
+	/// </summary>
+
 	public class AppDbContext : DbContext
 	{
 		public DbSet<UserProfile> Users { get; set; }
 		public DbSet<Like> Likes { get; set; }
 		public DbSet<Group> Groups { get; set; }
+		public DbSet<UserRegistrationStatus> RegistrationStatuses { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
 			optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=InterDating;Trusted_Connection=True;TrustServerCertificate=True;");
 		}
 	}
-	#region Methods with DB
-	public class DbControls
-	{
-		public static void CheckStatus(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
-		{
-			if (update?.Message?.From != null)
-			{
-				long userId = update.Message.From.Id;
-
-				if (!db.Users.Any(user => user.TelegramID == userId))
-				{
-					db.Users.Add(new UserProfile { TelegramID = userId});
-				}
-			}
-		}
-	}
-	#endregion
 }

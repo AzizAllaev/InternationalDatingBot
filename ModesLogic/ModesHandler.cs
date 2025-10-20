@@ -20,8 +20,7 @@ namespace ModesLogic
 		public static async Task MainMenuMode(ITelegramBotClient bot, Update update, CancellationToken clt)
 		{
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
-			var username = TelegramBotUtilities.ReturnUsername(update);
-			Message message = await TelegramBotUtilities.DisplayMainMenuKeyboard(bot, chatID, "Выберите действие: ", clt);
+			await TelegramBotUtilities.DisplayMainMenuKeyboard(bot, chatID, "Выберите действие: ", clt);
 		}
 		#endregion
 
@@ -34,7 +33,7 @@ namespace ModesLogic
 			string? messageForButton = TelegramBotUtilities.ReturnProfileText(username);
 			if (messageForButton != null && chatID != null)
 			{
-				Message message = await bot.SendMessage(
+				await bot.SendMessage(
 					chatId: chatID.Value,
 					text: messageForButton,
 					replyMarkup: keyboard,
@@ -49,42 +48,44 @@ namespace ModesLogic
 
 		#region Make proifle
 
-		public async Task StartUserRegistration(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, AppDbContext db)
+		public static async Task StartUserRegistration(ITelegramBotClient bot, Update update, CancellationToken cts, AppDbContext db)
 		{
+			if (update.Message != null && update.Message.From != null)
+			{
+				var RegistrationStat = new UserRegistrationStatus();
+				RegistrationStat.ProfileId = update.Message.From.Id;
+				RegistrationStat.UserRegStatus = 1;
+				db.RegistrationStatuses.Add(RegistrationStat);
+				db.SaveChanges();
+			}
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.StartRegistrationKeyboard();
 			string TextToSend = TelegramBotUtilities.StartRegirstrationText();
 			if (TextToSend != null && chatID != null)
 			{
-				var message = await bot.SendMessage(
+				await bot.SendMessage(
 					chatId: chatID,
 					text: TextToSend,
 					replyMarkup: keyboard,
 					cancellationToken: cts
 					);
 			}
-			if(update.Message != null && update.Message.Text != null)
+		}
+
+		public static async Task TakeData(ITelegramBotClient bot, Update update, CancellationToken cts, AppDbContext db)
+		{
+			if (update.CallbackQuery != null)
 			{
-				if(update.Message.Text == TextToSend)
+				var a = db.RegistrationStatuses.FirstOrDefault(stat => stat.ProfileId == update.CallbackQuery.From.Id);
+				if(a.UserRegStatus == 1)
 				{
-					await TakeData(bot, update, cts, db);
+					a.UserRegStatus = 2;
+					//await TakeGender(bot, update, cts, );
 				}
 			}
 		}
 
-
-		private async Task TakeData(ITelegramBotClient bot, Update update, CancellationToken cts, AppDbContext db)
-		{
-			UserProfile user = new UserProfile();
-			await TakeGender(bot, update, cts, user);
-			await TakeGroup(bot, update, cts, user, db);
-
-			db.Users.Add(user);
-			db.SaveChanges();
-		}
-
-
-		private async static Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user)
+		public static async Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user)
 		{
 			var keyboard = Keyboards.TakeGenderKeyboard();
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
@@ -112,7 +113,7 @@ namespace ModesLogic
 				}
 			}
 		}
-		private async static Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, AppDbContext db)
+		public static async Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, AppDbContext db)
 		{
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.TakeGroupKeyboard(db.Groups.ToList());
@@ -135,10 +136,6 @@ namespace ModesLogic
 				user.group = findgroup;
 			}
 		}
-
-
-
-
 
 		public static bool CheckStatus(Update update, AppDbContext db)
 		{
