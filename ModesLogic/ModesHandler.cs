@@ -82,10 +82,14 @@ namespace ModesLogic
 					a.UserRegStatus = 2;
 					//await TakeGender(bot, update, cts, );
 				}
+				else if(a.UserRegStatis == 2)
+                {
+					//await TakeGroup(bot, update, cts, )
+                }
 			}
 		}
 
-		public static async Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user)
+		public static async Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts)
 		{
 			var keyboard = Keyboards.TakeGenderKeyboard();
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
@@ -97,20 +101,6 @@ namespace ModesLogic
 					replyMarkup: keyboard,
 					cancellationToken: cts
 					);
-			}
-			var callbackData = update.CallbackQuery;
-			string? data = callbackData?.Data;
-
-			if (callbackData != null && data != null)
-			{
-				if(data == "Male")
-				{
-					user.Gender = "Male";
-				}
-				else if(data == "Female")
-				{
-					user.Gender = "Female";
-				}
 			}
 		}
 		public static async Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, AppDbContext db)
