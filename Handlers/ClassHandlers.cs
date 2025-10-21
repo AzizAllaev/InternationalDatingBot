@@ -21,6 +21,7 @@ namespace Handlers
 		{
 			if(update.CallbackQuery != null)
 			{
+				var a = update.CallbackQuery.D;
 
 			}
 			if (update.Message != null)
@@ -32,7 +33,7 @@ namespace Handlers
 					switch (text)
 					{
 						case "Начать заполнение профиля👁️":
-
+							await TakeData(bot, update, cts, db);
 							break;
 						case "/start":
 							await ModesHandlers.MainMenuMode(bot, update, clt);

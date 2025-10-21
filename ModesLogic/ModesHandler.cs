@@ -103,7 +103,7 @@ namespace ModesLogic
 					);
 			}
 		}
-		public static async Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts, UserProfile user, AppDbContext db)
+		public static async Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts)
 		{
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.TakeGroupKeyboard(db.Groups.ToList());
@@ -116,14 +116,6 @@ namespace ModesLogic
 					replyMarkup: keyboard,
 					cancellationToken: cts
 					);
-			}
-
-			var callbackData = update.CallbackQuery;
-			string? data = callbackData?.Data;
-			var findgroup = db.Groups.ToList().FirstOrDefault(grp => grp.Name == data);
-			if(findgroup != null) 
-			{
-				user.group = findgroup;
 			}
 		}
 
