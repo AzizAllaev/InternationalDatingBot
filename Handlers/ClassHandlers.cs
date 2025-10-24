@@ -19,23 +19,43 @@ namespace Handlers
 	{
 		public static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken clt)
 		{
-			// Cause if user pressed inlinemarkup button
-			if (update.CallbackQuery != null)
+			//Cause if user pressed inlinemarkup button
+			if (update.CallbackQuery != null && update.CallbackQuery.Data != null)
 			{
-				using AppDbContext db = new AppDbContext();
+				await bot.AnswerCallbackQuery(update.CallbackQuery.Id);
 				string data = update.CallbackQuery.Data;
-
-				if (db.Groups.Any(group => group.Name == data))
+				using var db = new AppDbContext();
+				var user = db.Users.FirstOrDefault(u => u.TelegramID == update.CallbackQuery.From.Id);
+				var userregStat = db.RegistrationStatuses.FirstOrDefault(ureg => ureg.ProfileId == update.CallbackQuery.From.Id);
+				if (data != null && user != null && userregStat != null && update.CallbackQuery.Message != null)
 				{
-					var user = db.Users.FirstOrDefault(u => u.ProfileId == update.CallbackQuery.From.Id);
-					var group = db.Groups.FirstOrDefault(gr => gr.Name == data);
-					user.Group = group;
-					user.GroupID = group.Id;
+					if(data == "Male" || data == "Female")
+					{
+						user.Gender = data;
+						var chatId = update.CallbackQuery.Message.Chat.Id;
+						var messageId = update.CallbackQuery.Message.MessageId;
+						await bot.DeleteMessage(chatId, messageId);
+						userregStat.UserRegStatus = 2;
+						await ModesHandlers.TakeData(bot, update, clt, db);
+						db.SaveChanges();
+					}
+					else if(db.Groups.Any(grp => grp.Name == data))
+					{
+						var group = db.Groups.FirstOrDefault(grp => grp.Name == data);
+						var messageId = update.CallbackQuery.Message.MessageId;
+						var chatId = update.CallbackQuery.Message.Chat.Id;
+						if (group != null)
+						{
+							await bot.DeleteMessage(chatId, messageId);
+							user.group = group;
+							user.GroupID = group.Id;
+							userregStat.UserRegStatus = 3;
+							await ModesHandlers.TakeData(bot, update, clt, db);
+							db.SaveChanges();
+						}
+					}
 				}
-				await botClient.AnswerCallbackQueryAsync(update.CallbackQuery.Id, $"Вы выбрали группу: {group.Name}");
-				db.SaveChanges();
 			}
-
 
 			// Cause if user pressed replymarkup button
 			if (update.Message != null)
@@ -46,17 +66,20 @@ namespace Handlers
 					using AppDbContext db = new AppDbContext();
 					switch (text)
 					{
-						case "Начать заполнение профиля👁️":
-							await TakeData(bot, update, cts, db);
+						case "Заполнить заново":
+							await ModesHandlers.StartUserRegistration(bot, update, clt, db);
+							break;
+						case "Данные анкеты👁️":
+							await ModesHandlers.TakeData(bot, update, clt, db);
 							break;
 						case "/start":
 							await ModesHandlers.MainMenuMode(bot, update, clt);
-							if (ModesLogic.ModesHandlers.CheckStatus(update, db))
+							if (!ModesLogic.ModesHandlers.CheckStatus(update, db))
 							{
-								await ModesHandlers.StartUserRegistration(bot, update, clt);
+								await ModesHandlers.StartUserRegistration(bot, update, clt, db);
 							}
 							break;
-						case "Профиль👤":
+						case "Анкета👤":
 							await ModesHandlers.ProfileMode(bot, update, clt);
 							break;
 						case "Выбор кандидата🪩":
@@ -71,12 +94,15 @@ namespace Handlers
 			}
 		}
 
-		
+
 		public static async Task HandleError(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken token)
 		{
-			Console.WriteLine("Ошибка кода");
-			throw new Exception("Фатальная ошибка, бот временно прекращает работу");
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine($"Ошибка: {exception.Message}");
+			Console.WriteLine($"Источник: {source}");
+			Console.ResetColor();
 		}
+
 
 	}
 }

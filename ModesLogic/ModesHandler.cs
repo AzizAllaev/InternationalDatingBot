@@ -28,8 +28,8 @@ namespace ModesLogic
 		public static async Task ProfileMode(ITelegramBotClient bot, Update update, CancellationToken clt)
 		{
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
-			var keyboard = Keyboards.MakeReturnKeyboard();
-			string? username= TelegramBotUtilities.ReturnUsername(update);
+			var keyboard = Keyboards.ReturnFromProfile();
+			string? username = TelegramBotUtilities.ReturnUsername(update);
 			string? messageForButton = TelegramBotUtilities.ReturnProfileText(username);
 			if (messageForButton != null && chatID != null)
 			{
@@ -52,11 +52,35 @@ namespace ModesLogic
 		{
 			if (update.Message != null && update.Message.From != null)
 			{
-				var RegistrationStat = new UserRegistrationStatus();
-				RegistrationStat.ProfileId = update.Message.From.Id;
-				RegistrationStat.UserRegStatus = 1;
-				db.RegistrationStatuses.Add(RegistrationStat);
-				db.SaveChanges();
+				if (!db.Users.Any(reg => reg.TelegramID == update.Message.From.Id))
+				{
+					UserProfile user = new UserProfile();
+					user.Username = update.Message.From.Username;
+					user.TelegramID = update.Message.From.Id;
+					db.Users.Add(user);
+					db.SaveChanges();
+				}
+				if (!db.RegistrationStatuses.Any(reg => reg.ProfileId == update.Message.From.Id))
+				{
+					var RegistrationStat = new UserRegistrationStatus();
+					RegistrationStat.ProfileId = update.Message.From.Id;
+					RegistrationStat.UserRegStatus = 1;
+					db.RegistrationStatuses.Add(RegistrationStat);
+					db.SaveChanges();
+				}
+			}
+			if (update.Message != null && update.Message.From != null)
+			{
+				if (db.RegistrationStatuses.Any(stat => stat.ProfileId == update.Message.From.Id))
+				{
+					var regstat = db.RegistrationStatuses.FirstOrDefault(stat => stat.ProfileId == update.Message.From.Id);
+					if (regstat != null)
+					{
+						await bot.SendMessage(update.Message.Chat.Id, "тест");
+						regstat.UserRegStatus = 1;
+						db.SaveChanges();
+					}
+				}
 			}
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.StartRegistrationKeyboard();
@@ -74,22 +98,31 @@ namespace ModesLogic
 
 		public static async Task TakeData(ITelegramBotClient bot, Update update, CancellationToken cts, AppDbContext db)
 		{
-			if (update.CallbackQuery != null)
+			await bot.SendMessage(update.Message.Chat.Id, "Метод получения группы запустился");
+			if (update.Message != null && update.Message.From != null)
 			{
-				var a = db.RegistrationStatuses.FirstOrDefault(stat => stat.ProfileId == update.CallbackQuery.From.Id);
-				if(a.UserRegStatus == 1)
+				var a = db.RegistrationStatuses.FirstOrDefault(stat => stat.ProfileId == update.Message.From.Id);
+				if (a != null)
 				{
-					a.UserRegStatus = 2;
-					//await TakeGender(bot, update, cts, );
+
+					if (a.UserRegStatus == 1)
+					{
+						await TakeGender(bot, update, cts, db);
+					}
+					else if (a.UserRegStatus == 2)
+					{
+						await bot.SendMessage(update.Message.Chat.Id, "Метод получения группы запустился");
+						await TakeGroup(bot, update, cts, db);
+					}
+					else if(a.UserRegStatus == 3)
+					{
+						await bot.SendMessage(update.Message.Chat.Id, "пошел нахуй");
+					}
 				}
-				else if(a.UserRegStatis == 2)
-                {
-					//await TakeGroup(bot, update, cts, )
-                }
 			}
 		}
 
-		public static async Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts)
+		private static async Task TakeGender(ITelegramBotClient bot, Update update, CancellationToken cts, AppDbContext db)
 		{
 			var keyboard = Keyboards.TakeGenderKeyboard();
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
@@ -101,9 +134,14 @@ namespace ModesLogic
 					replyMarkup: keyboard,
 					cancellationToken: cts
 					);
+				var stat = db.RegistrationStatuses.FirstOrDefault(st => st.ProfileId == update.Id);
+				if (stat != null)
+				{
+					stat.UserRegStatus = 2;
+				}
 			}
 		}
-		public static async Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts)
+		private static async Task TakeGroup(ITelegramBotClient bot, Update update, CancellationToken cts, AppDbContext db)
 		{
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.TakeGroupKeyboard(db.Groups.ToList());
@@ -121,8 +159,6 @@ namespace ModesLogic
 
 		public static bool CheckStatus(Update update, AppDbContext db)
 		{
-			if (update.Message?.From == null)
-				return false; 
 			long telegramId = update.Message.From.Id;
 			return db.Users.Any(user => user.TelegramID == telegramId);
 		}

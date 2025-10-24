@@ -14,7 +14,7 @@ namespace HelperNamespce
 		{
 			return new ReplyKeyboardMarkup(new[]
 			{
-				new KeyboardButton[]{ "Профиль👤" },
+				new KeyboardButton[]{ "Анкета👤" },
 				new KeyboardButton[]{ "Выбор кандидата🪩" },
 				new KeyboardButton[]{ "Убарть себя из списка📌" }
 			})
@@ -38,7 +38,7 @@ namespace HelperNamespce
 		{
 			return new ReplyKeyboardMarkup(new[]
 			{
-				new KeyboardButton[]{ "Начать заполнение профиля👁️" },
+				new KeyboardButton[]{ "Данные анкеты👁️" },
 			})
 			{
 				ResizeKeyboard = true,
@@ -70,6 +70,18 @@ namespace HelperNamespce
 			}
 			return new InlineKeyboardMarkup(buttons);
         }
+		public static ReplyKeyboardMarkup ReturnFromProfile()
+		{
+			return new ReplyKeyboardMarkup(new[]
+			{
+				new KeyboardButton[]{ "Вернуться назад" },
+				new KeyboardButton[]{ "Заполнить заново" }
+			})
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
 
         #region In progres...
         //public static InlineKeyboardMarkup TakeGene()
