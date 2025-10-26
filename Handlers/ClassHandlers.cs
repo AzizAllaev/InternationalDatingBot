@@ -19,28 +19,56 @@ namespace Handlers
 	{
 		public static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken clt)
 		{
+			
 			//Cause if user pressed inlinemarkup button
 			if (update.CallbackQuery != null && update.CallbackQuery.Data != null)
 			{
 				await bot.AnswerCallbackQuery(update.CallbackQuery.Id);
-				string data = update.CallbackQuery.Data;
+				string CallBackqueryData = update.CallbackQuery.Data;
 				using var db = new AppDbContext();
 				UserProfile? user = db.Users.FirstOrDefault(u => u.TelegramID == update.CallbackQuery.From.Id);
 				var userregStat = db.RegistrationStatuses.FirstOrDefault(ureg => ureg.ProfileId == update.CallbackQuery.From.Id);
-				if (data != null && user != null && userregStat != null && update.CallbackQuery.Message != null)
+				if (CallBackqueryData != null && user != null && userregStat != null && update.CallbackQuery.Message != null)
 				{
-					if(data == "Male" || data == "Female")
+					if(CallBackqueryData == "Male" || CallBackqueryData == "Female" && userregStat.UserRegStatus == 1)
 					{
-						await ModesHandlers.AnswerOnTakeGender(data, user, update, bot, db, userregStat);
+						await ModesHandlers.AnswerOnTakeGender(CallBackqueryData, user, update, bot, db, userregStat);
 					}
-					else if(db.Groups.Any(grp => grp.Name == data))
+					else if(db.Groups.Any(grp => grp.Name == CallBackqueryData && userregStat.UserRegStatus == 2))
 					{
-						await ModesHandlers.AnswerOnTakeGroup(db, data, update, user, bot, userregStat);
+						await ModesHandlers.AnswerOnTakeGroup(db, CallBackqueryData, update, user, bot, userregStat);
 					}
 				}
 			}
+			if(update.Message != null && update.Message.From != null)
+			{
+				using var db = new AppDbContext();
+				var userregStat = db.RegistrationStatuses.FirstOrDefault(ureg => ureg.ProfileId == update.Message.From.Id);
+				var user = db.Users.FirstOrDefault(u => u.TelegramID == update.Message.From.Id);
+				if (userregStat != null)
+				{
+					if (update.Message.Text != null && update.Message.Text != "Подтверждаю✅")
+					{
+						if (userregStat.UserRegStatus == 3)
+						{
+							if (user != null)
+							{
+								await ModesHandlers.AnswerOnTakeName(bot, update.Message.Text, update, user, db, userregStat);
+							}
+						}
+						else if (userregStat.UserRegStatus == 4)
+						{
+							if(user != null)
+							{
+								await ModesHandlers.AnswerOnTakeLastName(bot, update.Message.Text, update, user, db, userregStat);
+							}
+						}
+					}
+					db.SaveChanges();
+				}
+			}
 
-			// Cause if user pressed replymarkup button
+
 			if (update.Message != null)
 			{
 				string? text = TelegramBotUtilities.ReturnNewMessage(update);
@@ -49,7 +77,7 @@ namespace Handlers
 					using AppDbContext db = new AppDbContext();
 					switch (text)
 					{
-						case "Продолжить регистрацию":
+						case "Подтверждаю✅":
 							await ModesHandlers.TakeData(bot, update, clt, db);
 							break;
 						case "Заполнить заново":

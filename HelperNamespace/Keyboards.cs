@@ -86,27 +86,25 @@ namespace HelperNamespce
 		{
 			return new ReplyKeyboardMarkup(new[]
 			{
-				new KeyboardButton[]{ "Продолжить регистрацию" },
+				new KeyboardButton[]{ "Подтверждаю✅" },
 			})
 			{
 				ResizeKeyboard = true,
 				OneTimeKeyboard = false
 			};
 		}
-
-		#region In progres...
-		//public static InlineKeyboardMarkup TakeGene()
-		//{
-		//	return new InlineKeyboardMarkup(new[]
-		//	{
-		//		new[]
-		//		{
-		//			InlineKeyboardButton.WithCallbackData("", ""),
-		//			InlineKeyboardButton.WithCallbackData("", "")
-		//		}
-		//	});
-		//}
-		#endregion
+		public static ReplyKeyboardMarkup ReturnFromReg()
+		{
+			return new ReplyKeyboardMarkup(new[]
+			{
+				new KeyboardButton[]{ "Подтверждаю✅" },
+				new KeyboardButton[]{ "Заполнить заново" }
+			})
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
 	}
 
 

@@ -108,10 +108,9 @@ namespace ModesLogic
 			var regStatus = db.RegistrationStatuses.FirstOrDefault(stat => stat.ProfileId == userId);
 			if (regStatus == null)
 				return;
-
 			if (regStatus.UserRegStatus == 1)
 			{
-				await TakeGender(bot, update, cts, db);
+				await TakeGender(bot, update, cts);
 			}
 			else if (regStatus.UserRegStatus == 2)
 			{
@@ -119,12 +118,24 @@ namespace ModesLogic
 			}
 			else if (regStatus.UserRegStatus == 3)
 			{
-				var chatId = update.Message?.Chat?.Id ?? update.CallbackQuery?.Message?.Chat?.Id;
-				await bot.SendMessage(chatId, "Регистрация завершена ✅");
+				await TakeName(bot, update, cts);
+			}
+			else if (regStatus.UserRegStatus == 4)
+			{
+				await TakeLastName(bot, update, cts);
+			}
+			else if (regStatus.UserRegStatus == 5)
+			{
+				var keyboard = Keyboards.ReturnFromReg();
+				if(update.Message != null)
+				{
+					var chatid = update.Message.Chat.Id;
+					await bot.SendMessage(chatid, )
+				}
 			}
 		}
 
-		private static async Task TakeGender(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts, AppDbContext db)
+		private static async Task TakeGender(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts)
 		{
 			var keyboard = Keyboards.TakeGenderKeyboard();
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
@@ -138,7 +149,7 @@ namespace ModesLogic
 					);
 			}
 		}
-		public static async Task TakeGroup(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts, AppDbContext db)
+		private static async Task TakeGroup(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts, AppDbContext db)
 		{
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.TakeGroupKeyboard(db.Groups.ToList());
@@ -154,6 +165,32 @@ namespace ModesLogic
 			}
 		}
 
+		private static async Task TakeName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts)
+		{
+			long? chatid = TelegramBotUtilities.ReturnChatID(update);
+			string? text = "Введите имя:";
+			if (chatid != null)
+			{
+				await bot.SendMessage(
+					chatId: chatid,
+					text: text,
+					cancellationToken: cts
+					);
+			}
+		}
+		private static async Task TakeLastName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts)
+		{
+			long? chatid = TelegramBotUtilities.ReturnChatID(update);
+			string? text = "Введите Фамилию:";
+			if (chatid != null)
+			{
+				await bot.SendMessage(
+					chatId: chatid,
+					text: text,
+					cancellationToken: cts
+					);
+			}
+		}
 		public static bool CheckStatus(Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			long telegramId = update.Message.From.Id;
@@ -175,14 +212,7 @@ namespace ModesLogic
 			await bot.SendMessage(
 				chatId,
 				$"Ваш пол: {data}",
-				replyMarkup: new ReplyKeyboardMarkup(new[]
-					{
-									new KeyboardButton[]{ "Продолжить регистрацию" },
-					})
-				{
-					ResizeKeyboard = true,
-					OneTimeKeyboard = false
-				}
+				replyMarkup: Keyboards.ContinueReg()
 				);
 		}
 
@@ -201,9 +231,37 @@ namespace ModesLogic
 			}
 			await bot.SendMessage(
 				chatId,
-				"Регистрация закончилась✅",
-				replyMarkup: Keyboards.MakeReturnKeyboard()
+				$"Вы состоите в группе {data}",
+				replyMarkup: Keyboards.ContinueReg()
 				);
+		}
+
+		public static async Task AnswerOnTakeName(ITelegramBotClient bot, string data, Telegram.Bot.Types.Update update, UserProfile user, AppDbContext db, UserRegistrationStatus userregStat)
+		{
+			if(data is  string str && str.Length < 150 && data != null)
+			{
+				user.Name = data;
+				db.SaveChanges();
+				userregStat.UserRegStatus = 4;
+				if (update.Message != null)
+				{
+					await bot.SendMessage(update.Message.Chat.Id, $"Имя в профиле: {data}", replyMarkup: Keyboards.ContinueReg());
+				}
+			}
+		}
+
+		public static async Task AnswerOnTakeLastName(ITelegramBotClient bot, string data, Telegram.Bot.Types.Update update, UserProfile user, AppDbContext db, UserRegistrationStatus userregStat)
+		{
+			if (data is string str && str.Length < 150 && data != null)
+			{
+				user.LastName = data;
+				db.SaveChanges();
+				userregStat.UserRegStatus = 5;
+				if (update.Message != null)
+				{
+					await bot.SendMessage(update.Message.Chat.Id, $"Фамилия в профиле: {data}", replyMarkup: Keyboards.ContinueReg());
+				}
+			}
 		}
 		#endregion
 	}

@@ -8,19 +8,25 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using static System.Net.Mime.MediaTypeNames;
+using Models;
 
 namespace HelperNamespace
 {
 	public static class TelegramBotUtilities
 	{
 		#region Text
-		public static string ReturnProfileText(string username)
+		public static string? ReturnProfileText(AppDbContext db, Update update)
 		{
-			string text = $"Имя пользователя: {username}\n" +
-				$"Группа: \n" +
-				$"ФИО профиля: \n" +
-				$"Данные профиля можно редактировать👌\n";
-			return text;
+			var user = db.Users.FirstOrDefault(u => u.TelegramID == update.Message.From.Id);
+
+			if (user != null)
+			{
+				string text = $"Имя пользователя: {user.Username}\n" +
+					$"Группа: {user.group.Name}" +
+					$"ФИО профиля: \n" +
+					$"Данные профиля можно редактировать👌\n";
+				return text;
+			}
 		}
 		public static string StartRegirstrationText()
 		{
