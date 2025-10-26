@@ -8,7 +8,7 @@ using Models;
 
 namespace HelperNamespce
 {
-	public static class Keyboards
+	public class Keyboards
 	{
 		public static ReplyKeyboardMarkup MakeMainMenuKeyboard()
 		{
@@ -82,21 +82,32 @@ namespace HelperNamespce
 				OneTimeKeyboard = false
 			};
 		}
+		public static ReplyKeyboardMarkup ContinueReg()
+		{
+			return new ReplyKeyboardMarkup(new[]
+			{
+				new KeyboardButton[]{ "Продолжить регистрацию" },
+			})
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
 
-        #region In progres...
-        //public static InlineKeyboardMarkup TakeGene()
-        //{
-        //	return new InlineKeyboardMarkup(new[]
-        //	{
-        //		new[]
-        //		{
-        //			InlineKeyboardButton.WithCallbackData("", ""),
-        //			InlineKeyboardButton.WithCallbackData("", "")
-        //		}
-        //	});
-        //}
-        #endregion
-    }
+		#region In progres...
+		//public static InlineKeyboardMarkup TakeGene()
+		//{
+		//	return new InlineKeyboardMarkup(new[]
+		//	{
+		//		new[]
+		//		{
+		//			InlineKeyboardButton.WithCallbackData("", ""),
+		//			InlineKeyboardButton.WithCallbackData("", "")
+		//		}
+		//	});
+		//}
+		#endregion
+	}
 
 
 }

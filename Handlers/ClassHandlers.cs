@@ -25,34 +25,17 @@ namespace Handlers
 				await bot.AnswerCallbackQuery(update.CallbackQuery.Id);
 				string data = update.CallbackQuery.Data;
 				using var db = new AppDbContext();
-				var user = db.Users.FirstOrDefault(u => u.TelegramID == update.CallbackQuery.From.Id);
+				UserProfile? user = db.Users.FirstOrDefault(u => u.TelegramID == update.CallbackQuery.From.Id);
 				var userregStat = db.RegistrationStatuses.FirstOrDefault(ureg => ureg.ProfileId == update.CallbackQuery.From.Id);
 				if (data != null && user != null && userregStat != null && update.CallbackQuery.Message != null)
 				{
 					if(data == "Male" || data == "Female")
 					{
-						user.Gender = data;
-						var chatId = update.CallbackQuery.Message.Chat.Id;
-						var messageId = update.CallbackQuery.Message.MessageId;
-						await bot.DeleteMessage(chatId, messageId);
-						userregStat.UserRegStatus = 2;
-						await ModesHandlers.TakeData(bot, update, clt, db);
-						db.SaveChanges();
+						await ModesHandlers.AnswerOnTakeGender(data, user, update, bot, db, userregStat);
 					}
 					else if(db.Groups.Any(grp => grp.Name == data))
 					{
-						var group = db.Groups.FirstOrDefault(grp => grp.Name == data);
-						var messageId = update.CallbackQuery.Message.MessageId;
-						var chatId = update.CallbackQuery.Message.Chat.Id;
-						if (group != null)
-						{
-							await bot.DeleteMessage(chatId, messageId);
-							user.group = group;
-							user.GroupID = group.Id;
-							userregStat.UserRegStatus = 3;
-							await ModesHandlers.TakeData(bot, update, clt, db);
-							db.SaveChanges();
-						}
+						await ModesHandlers.AnswerOnTakeGroup(db, data, update, user, bot, userregStat);
 					}
 				}
 			}
@@ -66,6 +49,9 @@ namespace Handlers
 					using AppDbContext db = new AppDbContext();
 					switch (text)
 					{
+						case "Продолжить регистрацию":
+							await ModesHandlers.TakeData(bot, update, clt, db);
+							break;
 						case "Заполнить заново":
 							await ModesHandlers.StartUserRegistration(bot, update, clt, db);
 							break;
