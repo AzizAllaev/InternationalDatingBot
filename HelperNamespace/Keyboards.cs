@@ -97,8 +97,9 @@ namespace HelperNamespce
 		{
 			return new ReplyKeyboardMarkup(new[]
 			{
-				new KeyboardButton[]{ "Подтверждаю✅" },
-				new KeyboardButton[]{ "Заполнить заново" }
+				new KeyboardButton[]{ "Анкета👤" },
+				new KeyboardButton[]{ "Заполнить заново" },
+				new KeyboardButton[]{ "Вернуться назад" }
 			})
 			{
 				ResizeKeyboard = true,

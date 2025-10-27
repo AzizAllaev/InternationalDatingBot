@@ -15,6 +15,7 @@ namespace Models
 		public string? LastName { get; set; }
 		public int? Age { get; set; }
 		public string? Gender { get; set; }
+		public string? PhotoId { get; set; }
 
 		public int? GroupID { get; set; }
 		public Group? group { get; set; }

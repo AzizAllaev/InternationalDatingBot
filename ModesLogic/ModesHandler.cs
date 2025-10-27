@@ -13,6 +13,7 @@ using Models;
 using Microsoft.Extensions.Logging.Abstractions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.EntityFrameworkCore;
 
 namespace ModesLogic
 {
@@ -27,19 +28,21 @@ namespace ModesLogic
 		#endregion
 
 		#region Profile
-		public static async Task ProfileMode(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken clt)
+		public static async Task ProfileMode(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken clt, AppDbContext db)
 		{
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.ReturnFromProfile();
 			string? username = TelegramBotUtilities.ReturnUsername(update);
-			string? messageForButton = TelegramBotUtilities.ReturnProfileText(username);
-			if (messageForButton != null && chatID != null)
+			string? messageForButton = TelegramBotUtilities.ReturnProfileText(db, update);
+			var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
+			if (messageForButton != null && chatID != null && user != null)
 			{
 				await bot.SendMessage(
 					chatId: chatID.Value,
 					text: messageForButton,
 					replyMarkup: keyboard,
-					cancellationToken: clt
+					cancellationToken: clt,
+					photo:  
 					);
 			}
 		}
@@ -54,33 +57,32 @@ namespace ModesLogic
 		{
 			if (update.Message != null && update.Message.From != null)
 			{
-				if (!db.Users.Any(reg => reg.TelegramID == update.Message.From.Id))
+				if (!await db.Users.AnyAsync(reg => reg.TelegramID == update.Message.From.Id))
 				{
 					UserProfile user = new UserProfile();
 					user.Username = update.Message.From.Username;
 					user.TelegramID = update.Message.From.Id;
-					db.Users.Add(user);
-					db.SaveChanges();
+					await db.Users.AddAsync(user);
+					await db.SaveChangesAsync();
 				}
 				if (!db.RegistrationStatuses.Any(reg => reg.ProfileId == update.Message.From.Id))
 				{
 					var RegistrationStat = new UserRegistrationStatus();
 					RegistrationStat.ProfileId = update.Message.From.Id;
 					RegistrationStat.UserRegStatus = 1;
-					db.RegistrationStatuses.Add(RegistrationStat);
-					db.SaveChanges();
+					await db.RegistrationStatuses.AddAsync(RegistrationStat);
+					await db.SaveChangesAsync();
 				}
 			}
 			if (update.Message != null && update.Message.From != null)
 			{
 				if (db.RegistrationStatuses.Any(stat => stat.ProfileId == update.Message.From.Id))
 				{
-					var regstat = db.RegistrationStatuses.FirstOrDefault(stat => stat.ProfileId == update.Message.From.Id);
+					var regstat = await db.RegistrationStatuses.FirstOrDefaultAsync(stat => stat.ProfileId == update.Message.From.Id);
 					if (regstat != null)
 					{
-						await bot.SendMessage(update.Message.Chat.Id, "тест");
 						regstat.UserRegStatus = 1;
-						db.SaveChanges();
+						await db.SaveChangesAsync();
 					}
 				}
 			}
@@ -105,7 +107,7 @@ namespace ModesLogic
 			if (userId == null)
 				return;
 
-			var regStatus = db.RegistrationStatuses.FirstOrDefault(stat => stat.ProfileId == userId);
+			var regStatus = await db.RegistrationStatuses.FirstOrDefaultAsync(stat => stat.ProfileId == userId);
 			if (regStatus == null)
 				return;
 			if (regStatus.UserRegStatus == 1)
@@ -126,11 +128,15 @@ namespace ModesLogic
 			}
 			else if (regStatus.UserRegStatus == 5)
 			{
+				await TakePhoto(bot, update, cts);
+			}
+			else if(regStatus.UserRegStatus == 6)
+			{
 				var keyboard = Keyboards.ReturnFromReg();
 				if(update.Message != null)
 				{
 					var chatid = update.Message.Chat.Id;
-					await bot.SendMessage(chatid, )
+					await bot.SendMessage(chatid, "Регистрация завершилась📍", replyMarkup: Keyboards.ReturnFromReg());
 				}
 			}
 		}
@@ -164,7 +170,6 @@ namespace ModesLogic
 					);
 			}
 		}
-
 		private static async Task TakeName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts)
 		{
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
@@ -191,6 +196,20 @@ namespace ModesLogic
 					);
 			}
 		}
+		private static async Task TakePhoto(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts)
+		{
+			long? chatid = TelegramBotUtilities.ReturnChatID(update);
+			string? text = "Отправьте 1-2 фотки для вашего профиля: ";
+			if (chatid != null)
+			{
+				await bot.SendMessage(
+					chatId: chatid,
+					text: text,
+					cancellationToken: cts
+					);
+			}
+		}
+
 		public static bool CheckStatus(Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			long telegramId = update.Message.From.Id;
@@ -218,7 +237,7 @@ namespace ModesLogic
 
 		public static async Task AnswerOnTakeGroup(AppDbContext db, string data, Telegram.Bot.Types.Update update, UserProfile user, ITelegramBotClient bot, UserRegistrationStatus userregStat)
 		{
-			var group = db.Groups.FirstOrDefault(grp => grp.Name == data);
+			var group = await db.Groups.FirstOrDefaultAsync(grp => grp.Name == data);
 			var messageId = update.CallbackQuery.Message.MessageId;
 			var chatId = update.CallbackQuery.Message.Chat.Id;
 			if (group != null)
@@ -227,7 +246,7 @@ namespace ModesLogic
 				user.group = group;
 				user.GroupID = group.Id;
 				userregStat.UserRegStatus = 3;
-				db.SaveChanges();
+				await db.SaveChangesAsync();
 			}
 			await bot.SendMessage(
 				chatId,
@@ -241,7 +260,7 @@ namespace ModesLogic
 			if(data is  string str && str.Length < 150 && data != null)
 			{
 				user.Name = data;
-				db.SaveChanges();
+				await db.SaveChangesAsync();
 				userregStat.UserRegStatus = 4;
 				if (update.Message != null)
 				{
@@ -255,11 +274,28 @@ namespace ModesLogic
 			if (data is string str && str.Length < 150 && data != null)
 			{
 				user.LastName = data;
-				db.SaveChanges();
+				await db.SaveChangesAsync();
 				userregStat.UserRegStatus = 5;
 				if (update.Message != null)
 				{
 					await bot.SendMessage(update.Message.Chat.Id, $"Фамилия в профиле: {data}", replyMarkup: Keyboards.ContinueReg());
+				}
+			}
+		}
+
+		public static async Task AnswerOnTakePhoto(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationStatus userregStat)
+		{
+			var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			if (user != null && update.Message != null)
+			{
+				var photoList = update.Message.Photo;
+				if (photoList != null)
+				{
+					var photoId = photoList.Last();
+					user.PhotoId = photoId.FileId;
+					userregStat.UserRegStatus = 6;
+					await bot.SendMessage(update.Message.Chat.Id, "Изображение установлено👌");
+					await db.SaveChangesAsync();
 				}
 			}
 		}

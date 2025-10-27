@@ -1,0 +1,84 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
+using static System.Net.Mime.MediaTypeNames;
+using HelperNamespace;
+using HelperNamespce;
+using Models;
+using Microsoft.Extensions.Logging.Abstractions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.EntityFrameworkCore;
+
+namespace ModesLogic
+{
+	public class UpdateTypesHandler
+	{
+		public static async Task WhenCallBackquery(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
+		{
+			await bot.AnswerCallbackQuery(update.CallbackQuery.Id);
+			string CallBackqueryData = update.CallbackQuery.Data;
+			using var db = new AppDbContext();
+			UserProfile? user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.CallbackQuery.From.Id);
+			var userregStat = await db.RegistrationStatuses.FirstOrDefaultAsync(ureg => ureg.ProfileId == update.CallbackQuery.From.Id);
+			if (CallBackqueryData != null && user != null && userregStat != null && update.CallbackQuery.Message != null)
+			{
+				if (CallBackqueryData == "Male" || CallBackqueryData == "Female" && userregStat.UserRegStatus == 1)
+				{
+					await ModesHandlers.AnswerOnTakeGender(CallBackqueryData, user, update, bot, db, userregStat);
+				}
+				else if (db.Groups.Any(grp => grp.Name == CallBackqueryData && userregStat.UserRegStatus == 2))
+				{
+					await ModesHandlers.AnswerOnTakeGroup(db, CallBackqueryData, update, user, bot, userregStat);
+				}
+			}
+		}
+
+		public static async Task WhenMessageForProfile(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
+		{
+			using var db = new AppDbContext();
+			var userregStat = await db.RegistrationStatuses.FirstOrDefaultAsync(ureg => ureg.ProfileId == update.Message.From.Id);
+			if (userregStat != null && update?.Message?.From != null)
+			{
+				var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+				if (update.Message.Text != null && update.Message.Text != "Подтверждаю✅")
+				{
+					if (userregStat.UserRegStatus == 3)
+					{
+						if (user != null)
+						{
+							await ModesHandlers.AnswerOnTakeName(bot, update.Message.Text, update, user, db, userregStat);
+						}
+					}
+					else if (userregStat.UserRegStatus == 4)
+					{
+						if (user != null)
+						{
+							await ModesHandlers.AnswerOnTakeLastName(bot, update.Message.Text, update, user, db, userregStat);
+						}
+					}
+				}
+				await db.SaveChangesAsync();
+			}
+		}
+
+		public static async Task WhenPhotoForProfile(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
+		{
+			using var db = new AppDbContext();
+			Console.WriteLine("Сообщение получено");
+			if (update.Message != null && update.Message.From != null)
+			{
+				var regStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.ProfileId == update.Message.From.Id);
+				if (regStat != null && regStat.UserRegStatus == 5)
+				{
+					await ModesHandlers.AnswerOnTakePhoto(bot, update, db, regStat);
+				}
+			}
+		}
+	}
+}

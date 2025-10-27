@@ -17,16 +17,51 @@ namespace HelperNamespace
 		#region Text
 		public static string? ReturnProfileText(AppDbContext db, Update update)
 		{
-			var user = db.Users.FirstOrDefault(u => u.TelegramID == update.Message.From.Id);
-
-			if (user != null)
+			if (update.Message != null && update.Message.From != null)
 			{
-				string text = $"Имя пользователя: {user.Username}\n" +
-					$"Группа: {user.group.Name}" +
-					$"ФИО профиля: \n" +
-					$"Данные профиля можно редактировать👌\n";
-				return text;
+				var user = db.Users.FirstOrDefault(u => u.TelegramID == update.Message.From.Id);
+				if (user != null)
+				{
+					var group = db.Groups.FirstOrDefault(g => g.Id == user.GroupID);
+					if (group != null)
+					{
+						string text = $"Имя пользователя: {user.Username}\n" +
+						$"Группа: {group.Name}\n" +
+						$"ФИ профиля: {user.Name} {user.LastName}\n";
+						return text;
+					}
+					else
+					{
+						string text = "Ваш заполнень не полностью👤";
+						return text;
+					}
+				}
 			}
+			else if(update.CallbackQuery != null && update.CallbackQuery.From != null)
+			{
+				var user = db.Users.FirstOrDefault(u => u.TelegramID == update.CallbackQuery.From.Id);
+				if (user != null)
+				{
+					var group = db.Groups.FirstOrDefault(g => g.Id == user.GroupID);
+					if (group != null)
+					{
+						string text = $"Имя пользователя: {user.Username}\n" +
+						$"Группа: {group.Name}\n" +
+						$"ФИ профиля: {user.Name} {user.LastName}\n";
+						return text;
+					}
+					else
+					{
+						string text = "Ваш заполнень не полностью👤";
+						return text;
+					}
+				}
+			}
+			else
+			{
+				Console.WriteLine("NullReferenceEx, source: TelegramBotUtilities.ReturnProfileText");
+			}
+			return null;
 		}
 		public static string StartRegirstrationText()
 		{
