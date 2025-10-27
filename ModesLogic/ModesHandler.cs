@@ -37,12 +37,12 @@ namespace ModesLogic
 			var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
 			if (messageForButton != null && chatID != null && user != null)
 			{
-				await bot.SendMessage(
+				await bot.SendPhoto(
 					chatId: chatID.Value,
-					text: messageForButton,
+					caption: messageForButton,
 					replyMarkup: keyboard,
 					cancellationToken: clt,
-					photo:  
+					photo: user.PhotoId
 					);
 			}
 		}
@@ -199,7 +199,7 @@ namespace ModesLogic
 		private static async Task TakePhoto(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts)
 		{
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
-			string? text = "Отправьте 1-2 фотки для вашего профиля: ";
+			string? text = "Отправьте фотку для вашего профиля: ";
 			if (chatid != null)
 			{
 				await bot.SendMessage(

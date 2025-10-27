@@ -70,7 +70,6 @@ namespace ModesLogic
 		public static async Task WhenPhotoForProfile(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
 		{
 			using var db = new AppDbContext();
-			Console.WriteLine("Сообщение получено");
 			if (update.Message != null && update.Message.From != null)
 			{
 				var regStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.ProfileId == update.Message.From.Id);
