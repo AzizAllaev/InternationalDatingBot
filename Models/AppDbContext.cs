@@ -7,12 +7,15 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Models
 {
 	/// <summary>
 	/// Migration command is:
 	/// Add-Migration MigrationName -StartupProject InternationalDating -Project Models
+	/// Update command is:
+	/// Update-Database -StartupProject InternationalDating -Project Models
 	/// </summary>
 
 	public class AppDbContext : DbContext
@@ -24,7 +27,7 @@ namespace Models
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			optionsBuilder.UseSqlite();
+			optionsBuilder.UseSqlite("Data Source=Data");
 			//optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=InterDating;Trusted_Connection=True;TrustServerCertificate=True;");
 		}
 	}
