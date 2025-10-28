@@ -80,10 +80,13 @@ namespace Handlers
 
 		public static async Task HandleError(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken token)
 		{
-			Console.ForegroundColor = ConsoleColor.Red;
-			Console.WriteLine($"Ошибка: {exception.Message}");
-			Console.WriteLine($"Источник: {source}");
-			Console.ResetColor();
+			await Task.Run(() =>
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+				Console.WriteLine($"Ошибка: {exception.Message}");
+				Console.WriteLine($"Источник: {source}");
+				Console.ResetColor();
+			});
 		}
 
 
