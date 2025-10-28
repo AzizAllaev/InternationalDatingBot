@@ -27,7 +27,8 @@ namespace Models
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{
-			optionsBuilder.UseSqlite("Data Source=Data");
+			var connection = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+			optionsBuilder.UseSqlite(connection);
 			//optionsBuilder.UseSqlServer(@"Server=.\SQLEXPRESS;Database=InterDating;Trusted_Connection=True;TrustServerCertificate=True;");
 		}
 	}
