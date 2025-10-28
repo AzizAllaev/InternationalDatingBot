@@ -35,7 +35,7 @@ namespace ModesLogic
 			string? username = TelegramBotUtilities.ReturnUsername(update);
 			string? messageForButton = TelegramBotUtilities.ReturnProfileText(db, update);
 			var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
-			if (messageForButton != null && chatID != null && user != null)
+			if (messageForButton != null && chatID != null && user != null && user.PhotoId != null && user.Name != null)
 			{
 				await bot.SendPhoto(
 					chatId: chatID.Value,
@@ -44,6 +44,10 @@ namespace ModesLogic
 					cancellationToken: clt,
 					photo: user.PhotoId
 					);
+			}
+			else
+			{
+				await bot.SendMessage(chatID, "Профиль не заполнен полностью");
 			}
 		}
 		#endregion 

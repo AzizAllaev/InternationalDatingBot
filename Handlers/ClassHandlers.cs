@@ -65,6 +65,9 @@ namespace Handlers
 						case "Анкета👤":
 							await ModesHandlers.ProfileMode(bot, update, clt, db);
 							break;
+						case "Профиль не заполен полностью":
+							await ModesHandlers.TakeData(bot, update, clt, db);
+							break;
 						case "Выбор кандидата🪩":
 							break;
 						case "Убарть себя из списка📌":
