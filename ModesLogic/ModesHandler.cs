@@ -69,10 +69,10 @@ namespace ModesLogic
 					await db.Users.AddAsync(user);
 					await db.SaveChangesAsync();
 				}
-				if (!db.RegistrationStatuses.Any(reg => reg.ProfileId == update.Message.From.Id))
+				if (!db.RegistrationStatuses.Any(reg => reg.TelegramId == update.Message.From.Id))
 				{
-					var RegistrationStat = new UserRegistrationStatus();
-					RegistrationStat.ProfileId = update.Message.From.Id;
+					var RegistrationStat = new UserRegistrationService();
+					RegistrationStat.TelegramId = update.Message.From.Id;
 					RegistrationStat.UserRegStatus = 1;
 					await db.RegistrationStatuses.AddAsync(RegistrationStat);
 					await db.SaveChangesAsync();
@@ -80,9 +80,9 @@ namespace ModesLogic
 			}
 			if (update.Message != null && update.Message.From != null)
 			{
-				if (db.RegistrationStatuses.Any(stat => stat.ProfileId == update.Message.From.Id))
+				if (db.RegistrationStatuses.Any(stat => stat.TelegramId == update.Message.From.Id))
 				{
-					var regstat = await db.RegistrationStatuses.FirstOrDefaultAsync(stat => stat.ProfileId == update.Message.From.Id);
+					var regstat = await db.RegistrationStatuses.FirstOrDefaultAsync(stat => stat.TelegramId == update.Message.From.Id);
 					if (regstat != null)
 					{
 						regstat.UserRegStatus = 1;
@@ -111,7 +111,7 @@ namespace ModesLogic
 			if (userId == null)
 				return;
 
-			var regStatus = await db.RegistrationStatuses.FirstOrDefaultAsync(stat => stat.ProfileId == userId);
+			var regStatus = await db.RegistrationStatuses.FirstOrDefaultAsync(stat => stat.TelegramId == userId);
 			if (regStatus == null)
 				return;
 			if (regStatus.UserRegStatus == 1)
@@ -224,7 +224,7 @@ namespace ModesLogic
 		#endregion
 
 		#region Answer on profile methods
-		public static async Task AnswerOnTakeGender(string data, UserProfile? user, Telegram.Bot.Types.Update update, ITelegramBotClient bot, AppDbContext db, UserRegistrationStatus userregStat)
+		public static async Task AnswerOnTakeGender(string data, UserProfile? user, Telegram.Bot.Types.Update update, ITelegramBotClient bot, AppDbContext db, UserRegistrationService userregStat)
 		{
 			user.Gender = data;
 			var chatId = update.CallbackQuery.Message.Chat.Id;
@@ -239,7 +239,7 @@ namespace ModesLogic
 				);
 		}
 
-		public static async Task AnswerOnTakeGroup(AppDbContext db, string data, Telegram.Bot.Types.Update update, UserProfile user, ITelegramBotClient bot, UserRegistrationStatus userregStat)
+		public static async Task AnswerOnTakeGroup(AppDbContext db, string data, Telegram.Bot.Types.Update update, UserProfile user, ITelegramBotClient bot, UserRegistrationService userregStat)
 		{
 			var group = await db.Groups.FirstOrDefaultAsync(grp => grp.Name == data);
 			var messageId = update.CallbackQuery.Message.MessageId;
@@ -259,7 +259,7 @@ namespace ModesLogic
 				);
 		}
 
-		public static async Task AnswerOnTakeName(ITelegramBotClient bot, string data, Telegram.Bot.Types.Update update, UserProfile user, AppDbContext db, UserRegistrationStatus userregStat)
+		public static async Task AnswerOnTakeName(ITelegramBotClient bot, string data, Telegram.Bot.Types.Update update, UserProfile user, AppDbContext db, UserRegistrationService userregStat)
 		{
 			if(data is  string str && str.Length < 150 && data != null)
 			{
@@ -273,7 +273,7 @@ namespace ModesLogic
 			}
 		}
 
-		public static async Task AnswerOnTakeLastName(ITelegramBotClient bot, string data, Telegram.Bot.Types.Update update, UserProfile user, AppDbContext db, UserRegistrationStatus userregStat)
+		public static async Task AnswerOnTakeLastName(ITelegramBotClient bot, string data, Telegram.Bot.Types.Update update, UserProfile user, AppDbContext db, UserRegistrationService userregStat)
 		{
 			if (data is string str && str.Length < 150 && data != null)
 			{
@@ -287,7 +287,7 @@ namespace ModesLogic
 			}
 		}
 
-		public static async Task AnswerOnTakePhoto(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationStatus userregStat)
+		public static async Task AnswerOnTakePhoto(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userregStat)
 		{
 			var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
 			if (user != null && update.Message != null)

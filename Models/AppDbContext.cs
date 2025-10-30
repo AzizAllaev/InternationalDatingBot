@@ -23,7 +23,8 @@ namespace Models
 		public DbSet<UserProfile> Users { get; set; }
 		public DbSet<Like> Likes { get; set; }
 		public DbSet<Group> Groups { get; set; }
-		public DbSet<UserRegistrationStatus> RegistrationStatuses { get; set; }
+		public DbSet<UserRegistrationService> RegistrationStatuses { get; set; }
+		public DbSet<ModeService> ModeServices { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{

@@ -25,7 +25,7 @@ namespace ModesLogic
 			string CallBackqueryData = update.CallbackQuery.Data;
 			using var db = new AppDbContext();
 			UserProfile? user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.CallbackQuery.From.Id);
-			var userregStat = await db.RegistrationStatuses.FirstOrDefaultAsync(ureg => ureg.ProfileId == update.CallbackQuery.From.Id);
+			var userregStat = await db.RegistrationStatuses.FirstOrDefaultAsync(ureg => ureg.TelegramId == update.CallbackQuery.From.Id);
 			if (CallBackqueryData != null && user != null && userregStat != null && update.CallbackQuery.Message != null)
 			{
 				if (CallBackqueryData == "Male" || CallBackqueryData == "Female" && userregStat.UserRegStatus == 1)
@@ -42,7 +42,7 @@ namespace ModesLogic
 		public static async Task WhenMessageForProfile(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
 		{
 			using var db = new AppDbContext();
-			var userregStat = await db.RegistrationStatuses.FirstOrDefaultAsync(ureg => ureg.ProfileId == update.Message.From.Id);
+			var userregStat = await db.RegistrationStatuses.FirstOrDefaultAsync(ureg => ureg.TelegramId == update.Message.From.Id);
 			if (userregStat != null && update?.Message?.From != null)
 			{
 				var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
@@ -72,7 +72,7 @@ namespace ModesLogic
 			using var db = new AppDbContext();
 			if (update.Message != null && update.Message.From != null)
 			{
-				var regStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.ProfileId == update.Message.From.Id);
+				var regStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == update.Message.From.Id);
 				if (regStat != null && regStat.UserRegStatus == 5)
 				{
 					await ModesHandlers.AnswerOnTakePhoto(bot, update, db, regStat);
