@@ -10,6 +10,7 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using Models;
+using Microsoft.EntityFrameworkCore;
 
 
 
@@ -23,26 +24,26 @@ namespace Handlers
 			//Case if user press buttons or answer to messages from bot
 			if (update.CallbackQuery != null && update.CallbackQuery.Data != null)
 			{
-				await ModesLogic.UpdateTypesHandler.WhenCallBackquery(bot, update);
+				await ModesLogic.RespondHandlers.WhenCallBackquery(bot, update);
 			}
 			if(update.Message != null && update.Message.From != null)
 			{
-				await ModesLogic.UpdateTypesHandler.WhenMessageForProfile(bot, update);
+				await ModesLogic.RespondHandlers.WhenMessageForProfile(bot, update);
 			}
 			if(update.Message != null && update.Message.Photo != null)
 			{
-				await ModesLogic.UpdateTypesHandler.WhenPhotoForProfile(bot, update);
+				await ModesLogic.RespondHandlers.WhenPhotoForProfile(bot, update);
 			}
 
 
-			if (update.Message != null)
+			if (update?.Message?.From != null)
 			{
 				string? text = TelegramBotUtilities.ReturnNewMessage(update);
 				if (text != null)
 				{
 					switch (text)
 					{
-						// Main buttons of modes
+						// Respond on main buttons of modes
 						case "/start":
 							if (!await ModesHandlers.CheckStatus(update, db))
 							{
@@ -64,10 +65,12 @@ namespace Handlers
 						case "Убарть себя из списка📌":
 							break; // !!! Field that delete all data about user from DB !!!
 						case "Выбор кандидата🪩":
+							await ModesHandlers.PartnerShowcaseMenu(bot, update);
+							await ModesHandlers.ChangeModeStatus(update, db, 2);
 							break; // !!! Field that start partner showcase !!!
 
 
-						// Service buttons
+						// Respond on service buttons
 						case "Данные анкеты👁️":
 							await ModesHandlers.TakeData(bot, update, clt, db);// <<--- This methods start registration
 							await ModesHandlers.ChangeModeStatus(update, db, 1);
@@ -85,6 +88,16 @@ namespace Handlers
 						case "Профиль не заполен полностью":
 							await ModesHandlers.TakeData(bot, update, clt, db);
 							break; // <<-- Notification that show that profile is not done 
+
+						// Respond on partner showcase buttons
+						case "Поиск пары🎆":
+							// -----------
+							//var status = await db.ModeServices.FirstOrDefaultAsync(s => s.TelegramId == update.Message.From.Id);
+							//if(status != null && status.ModeStatus == 2)
+							//	//---;
+							break;
+						case "Просмотреть приглашения👀":
+							break;
 					}
 				}
 			}

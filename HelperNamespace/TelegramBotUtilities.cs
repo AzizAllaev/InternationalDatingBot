@@ -16,7 +16,7 @@ namespace HelperNamespace
 	public static class TelegramBotUtilities
 	{
 		#region Text
-		public static async Task<string?> ReturnProfileText(AppDbContext db, Update update)
+		public static async Task<string?> ReturnBaseProfileText(AppDbContext db, Update update)
 		{
 			if (update?.Message?.From == null)
 				return null;
@@ -32,6 +32,17 @@ namespace HelperNamespace
 			string text = $"Имя пользователя: {user.Username}\n" +
 						$"Группа: {group.Name}\n" +
 						$"ФИ профиля: {user.Name} {user.LastName}\n";
+			return text;
+		}
+		public static async Task<string?> ReturnTargetProfileText(UserProfile targetuser, AppDbContext db)
+		{
+			var group = await db.Groups.FirstOrDefaultAsync(g => g.Id == targetuser.GroupID);
+			if(group == null)
+				return null;
+
+			string text = $"Имя пользователя: {targetuser.Username}\n" +
+						$"Группа: {group.Name}\n" +
+						$"ФИ профиля: {targetuser.Name} {targetuser.LastName}\n";
 			return text;
 		}
 		public static string StartRegirstrationText()

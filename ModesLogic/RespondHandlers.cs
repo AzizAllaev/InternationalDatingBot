@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ModesLogic
 {
-	public class UpdateTypesHandler
+	public class RespondHandlers
 	{
 		public static async Task WhenCallBackquery(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
 		{

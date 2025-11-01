@@ -43,7 +43,7 @@ namespace ModesLogic
 				long? chatID = TelegramBotUtilities.ReturnChatID(update);
 				var keyboard = Keyboards.ReturnFromProfile();
 				string? username = TelegramBotUtilities.ReturnUsername(update);
-				string? messageForButton = await TelegramBotUtilities.ReturnProfileText(db, update);
+				string? messageForButton = await TelegramBotUtilities.ReturnBaseProfileText(db, update);
 				var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
 
 				if (messageForButton != null && chatID != null && user != null && user.PhotoId != null && user.Name != null)
@@ -66,7 +66,52 @@ namespace ModesLogic
 		}
 		#endregion 
 
-		#region SelectMenu
+		#region Select partner menu
+		public static async Task PartnerShowcaseMenu(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			await bot.SendMessage(update.Message.Chat.Id,
+				"Выберите действие: ",
+				replyMarkup: Keyboards.ChooseModeInPS()
+				);
+		}
+
+		public static async Task FindPair(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if(update?.Message?.From == null)
+				return;
+
+			var targetQuery = db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+			var baseuserQuery = db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id); 
+
+			await Task.WhenAll(targetQuery, baseuserQuery);
+
+			var target = targetQuery.Result;
+			var	baseuser = baseuserQuery.Result;
+			if( target == null || baseuser == null)
+				return;
+
+			var targetuser = await db.Users.FirstOrDefaultAsync(tu => tu.Id > target.LastUserId && tu.Gender != baseuser.Gender);
+			if (targetuser == null)
+			{
+				await bot.SendMessage(update.Message.Chat.Id, "К сожелению я никого не нашел тебе😔");
+				return;
+			}
+
+
+
+			//if (targetuser == null || targetuser.PhotoId == null)
+			//	return;
+
+			//await bot.SendPhoto(
+			//	chatId: update.Message.Chat.Id,
+			//	caption: await TelegramBotUtilities.ReturnTargetProfileText(targetuser, db),
+			//	replyMarkup: Keyboards.LikeDislikeButtons(),
+			//	photo: targetuser.PhotoId
+			//	);
+		}
 		#endregion
 
 		#region Make proifle
