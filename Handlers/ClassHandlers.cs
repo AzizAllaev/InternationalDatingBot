@@ -48,13 +48,18 @@ namespace Handlers
 							{
 								await ModesHandlers.StartUserRegistration(bot, update, clt, db);
 							}
+							else if (await ModesHandlers.CheckStatus(update, db))
+							{
+								await ModesHandlers.MainMenuMode(bot, update, clt);
+							}
 							else
 							{
-								await ModesHandlers.StartUserRegistration(bot, update, clt, db);
+								throw new Exception("After /start user is not found");
 							}
 							break;
 						case "Анкета👤":
 							await ModesHandlers.ProfileMode(bot, update, clt, db);
+							await ModesHandlers.ChangeModeStatus(update, db, 1);
 							break; // !!! Field that send to user UserProfile !!!
 						case "Убарть себя из списка📌":
 							break; // !!! Field that delete all data about user from DB !!!
@@ -65,12 +70,14 @@ namespace Handlers
 						// Service buttons
 						case "Данные анкеты👁️":
 							await ModesHandlers.TakeData(bot, update, clt, db);// <<--- This methods start registration
+							await ModesHandlers.ChangeModeStatus(update, db, 1);
 							break; // <<-- Start of user profile registration
 						case "Подтверждаю✅":
 							await ModesHandlers.TakeData(bot, update, clt, db);
 							break; // <<-- Confirmation of profile registration data that fill user
 						case "Вернуться назад":
 							await ModesHandlers.MainMenuMode(bot, update, clt);
+							await ModesHandlers.ChangeModeStatus(update, db, 0);
 							break; // <<-- Back to main menu button
 						case "Заполнить заново":
 							await ModesHandlers.StartUserRegistration(bot, update, clt, db);

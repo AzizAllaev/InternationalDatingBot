@@ -330,8 +330,10 @@ namespace ModesLogic
 		#region Modestatus handler
 		public static async Task ChangeModeStatus(Telegram.Bot.Types.Update update, AppDbContext db, int status)
 		{
-			if(update.Message?.From?.Id == null) 
+			if (update.Message?.From?.Id == null) 
 				return;
+			if (!await db.ModeServices.AnyAsync(m => m.TelegramId == update.Message.From.Id))
+				await db.ModeServices.AddAsync(new ModeService { TelegramId = update.Message.From.Id });
 
 			var userModeStatus = await db.ModeServices.FirstOrDefaultAsync(m => m.TelegramId == update.Message.From.Id);
 
