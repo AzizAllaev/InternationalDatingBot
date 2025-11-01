@@ -19,8 +19,8 @@ namespace Handlers
 	{
 		public static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken clt)
 		{
-			
-			//Cause if user pressed inlinemarkup button
+			using AppDbContext db = new AppDbContext();
+			//Case if user press buttons or answer to messages from bot
 			if (update.CallbackQuery != null && update.CallbackQuery.Data != null)
 			{
 				await ModesLogic.UpdateTypesHandler.WhenCallBackquery(bot, update);
@@ -40,41 +40,44 @@ namespace Handlers
 				string? text = TelegramBotUtilities.ReturnNewMessage(update);
 				if (text != null)
 				{
-					using AppDbContext db = new AppDbContext();
 					switch (text)
 					{
-						case "Подтверждаю✅":
-							await ModesHandlers.TakeData(bot, update, clt, db);
-							break;
-						case "Заполнить заново":
-							await ModesHandlers.StartUserRegistration(bot, update, clt, db);
-							break;
-						case "Данные анкеты👁️":
-							await ModesHandlers.TakeData(bot, update, clt, db);
-							break;
+						// Main buttons of modes
 						case "/start":
-							if (!ModesLogic.ModesHandlers.CheckStatus(update, db))
+							if (!await ModesHandlers.CheckStatus(update, db))
 							{
 								await ModesHandlers.StartUserRegistration(bot, update, clt, db);
 							}
 							else
 							{
-								await ModesHandlers.MainMenuMode(bot, update, clt);
+								await ModesHandlers.StartUserRegistration(bot, update, clt, db);
 							}
 							break;
 						case "Анкета👤":
 							await ModesHandlers.ProfileMode(bot, update, clt, db);
-							break;
-						case "Профиль не заполен полностью":
-							await ModesHandlers.TakeData(bot, update, clt, db);
-							break;
-						case "Выбор кандидата🪩":
-							break;
+							break; // !!! Field that send to user UserProfile !!!
 						case "Убарть себя из списка📌":
-							break;
+							break; // !!! Field that delete all data about user from DB !!!
+						case "Выбор кандидата🪩":
+							break; // !!! Field that start partner showcase !!!
+
+
+						// Service buttons
+						case "Данные анкеты👁️":
+							await ModesHandlers.TakeData(bot, update, clt, db);// <<--- This methods start registration
+							break; // <<-- Start of user profile registration
+						case "Подтверждаю✅":
+							await ModesHandlers.TakeData(bot, update, clt, db);
+							break; // <<-- Confirmation of profile registration data that fill user
 						case "Вернуться назад":
 							await ModesHandlers.MainMenuMode(bot, update, clt);
-							break;
+							break; // <<-- Back to main menu button
+						case "Заполнить заново":
+							await ModesHandlers.StartUserRegistration(bot, update, clt, db);
+							break; // <<-- Field that also start user profile registration
+						case "Профиль не заполен полностью":
+							await ModesHandlers.TakeData(bot, update, clt, db);
+							break; // <<-- Notification that show that profile is not done 
 					}
 				}
 			}

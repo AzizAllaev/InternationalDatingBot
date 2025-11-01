@@ -9,59 +9,30 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
 using static System.Net.Mime.MediaTypeNames;
 using Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace HelperNamespace
 {
 	public static class TelegramBotUtilities
 	{
 		#region Text
-		public static string? ReturnProfileText(AppDbContext db, Update update)
+		public static async Task<string?> ReturnProfileText(AppDbContext db, Update update)
 		{
-			if (update.Message != null && update.Message.From != null)
-			{
-				var user = db.Users.FirstOrDefault(u => u.TelegramID == update.Message.From.Id);
-				if (user != null)
-				{
-					var group = db.Groups.FirstOrDefault(g => g.Id == user.GroupID);
-					if (group != null)
-					{
-						string text = $"Имя пользователя: {user.Username}\n" +
+			if (update?.Message?.From == null)
+				return null;
+
+			var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			if(user == null) 
+				return null;
+
+			var group = await db.Groups.FirstOrDefaultAsync(g => g.Id == user.GroupID);
+			if (group == null || user == null)
+				return null;
+
+			string text = $"Имя пользователя: {user.Username}\n" +
 						$"Группа: {group.Name}\n" +
 						$"ФИ профиля: {user.Name} {user.LastName}\n";
-						return text;
-					}
-					else
-					{
-						string text = "Ваш заполнень не полностью👤";
-						return text;
-					}
-				}
-			}
-			else if(update.CallbackQuery != null && update.CallbackQuery.From != null)
-			{
-				var user = db.Users.FirstOrDefault(u => u.TelegramID == update.CallbackQuery.From.Id);
-				if (user != null)
-				{
-					var group = db.Groups.FirstOrDefault(g => g.Id == user.GroupID);
-					if (group != null)
-					{
-						string text = $"Имя пользователя: {user.Username}\n" +
-						$"Группа: {group.Name}\n" +
-						$"ФИ профиля: {user.Name} {user.LastName}\n";
-						return text;
-					}
-					else
-					{
-						string text = "Ваш заполнень не полностью👤";
-						return text;
-					}
-				}
-			}
-			else
-			{
-				Console.WriteLine("NullReferenceEx, source: TelegramBotUtilities.ReturnProfileText");
-			}
-			return null;
+			return text;
 		}
 		public static string StartRegirstrationText()
 		{
@@ -76,28 +47,15 @@ namespace HelperNamespace
 		#endregion
 
 		#region User handler methods
-		public static async Task<Message> DisplayMainMenuKeyboard(ITelegramBotClient bot, long? ChatID, string TextWithButtons, CancellationToken cancellationToken)
-		{
-			var keyboard = Keyboards.MakeMainMenuKeyboard();
-			Message message = await bot.SendMessage(
-				chatId: ChatID,
-				text: TextWithButtons,
-				replyMarkup: keyboard,
-				cancellationToken: cancellationToken
-				);
-			return message;
-		}
 		public static long? ReturnChatID(Update update)
 		{
 			return update?.Message?.Chat?.Id;
 		}
 		public static string? ReturnNewMessage(Update update)
 		{
-			if (update.Message != null)
-				if(update.Message.Text != null)
-					return update.Message.Text;
-	
-			return null;
+			if(update?.Message?.Text == null)
+				return null;
+			return update.Message.Text;
 		}
 		public static string? ReturnUsername(Update update)
 		{

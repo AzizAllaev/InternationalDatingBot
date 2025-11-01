@@ -21,10 +21,13 @@ namespace ModesLogic
 	{
 		public static async Task WhenCallBackquery(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
 		{
+			if (update?.CallbackQuery?.Data == null)
+				return;
+
 			await bot.AnswerCallbackQuery(update.CallbackQuery.Id);
 			string CallBackqueryData = update.CallbackQuery.Data;
 			using var db = new AppDbContext();
-			UserProfile? user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.CallbackQuery.From.Id);
+			var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.CallbackQuery.From.Id);
 			var userregStat = await db.RegistrationStatuses.FirstOrDefaultAsync(ureg => ureg.TelegramId == update.CallbackQuery.From.Id);
 			if (CallBackqueryData != null && user != null && userregStat != null && update.CallbackQuery.Message != null)
 			{
@@ -34,13 +37,17 @@ namespace ModesLogic
 				}
 				else if (db.Groups.Any(grp => grp.Name == CallBackqueryData && userregStat.UserRegStatus == 2))
 				{
-					await ModesHandlers.AnswerOnTakeGroup(db, CallBackqueryData, update, user, bot, userregStat);
+					await ModesHandlers.AnswerOnTakeGroup(bot, CallBackqueryData, update, db, userregStat, user);
 				}
 			}
 		}
 
 		public static async Task WhenMessageForProfile(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
 		{
+
+			if (update?.Message?.From == null)
+				return;
+
 			using var db = new AppDbContext();
 			var userregStat = await db.RegistrationStatuses.FirstOrDefaultAsync(ureg => ureg.TelegramId == update.Message.From.Id);
 			if (userregStat != null && update?.Message?.From != null)
@@ -51,16 +58,12 @@ namespace ModesLogic
 					if (userregStat.UserRegStatus == 3)
 					{
 						if (user != null)
-						{
 							await ModesHandlers.AnswerOnTakeName(bot, update.Message.Text, update, user, db, userregStat);
-						}
 					}
 					else if (userregStat.UserRegStatus == 4)
 					{
 						if (user != null)
-						{
 							await ModesHandlers.AnswerOnTakeLastName(bot, update.Message.Text, update, user, db, userregStat);
-						}
 					}
 				}
 				await db.SaveChangesAsync();
@@ -77,7 +80,7 @@ namespace ModesLogic
 				{
 					await ModesHandlers.AnswerOnTakePhoto(bot, update, db, regStat);
 				}
-			}
+			} 
 		}
 	}
 }

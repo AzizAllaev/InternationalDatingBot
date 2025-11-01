@@ -20,34 +20,48 @@ namespace ModesLogic
 	public class ModesHandlers
 	{
 		#region Mainmenu
-		public static async Task MainMenuMode(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken clt)
+		public static async Task MainMenuMode(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts)
 		{
-			long? chatID = TelegramBotUtilities.ReturnChatID(update);
-			await TelegramBotUtilities.DisplayMainMenuKeyboard(bot, chatID, "Выберите действие: ", clt);
+			if (update.Message?.From == null)
+				return;
+
+			var keyboard = Keyboards.MakeMainMenuKeyboard();
+			await bot.SendMessage(
+				chatId: update.Message.Chat.Id,
+				text: "Выберите действие:",
+				replyMarkup: keyboard,
+				cancellationToken: cts
+				);
 		}
 		#endregion
 
 		#region Profile
 		public static async Task ProfileMode(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken clt, AppDbContext db)
 		{
-			long? chatID = TelegramBotUtilities.ReturnChatID(update);
-			var keyboard = Keyboards.ReturnFromProfile();
-			string? username = TelegramBotUtilities.ReturnUsername(update);
-			string? messageForButton = TelegramBotUtilities.ReturnProfileText(db, update);
-			var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
-			if (messageForButton != null && chatID != null && user != null && user.PhotoId != null && user.Name != null)
+			if (update?.Message?.From != null)
 			{
-				await bot.SendPhoto(
-					chatId: chatID.Value,
-					caption: messageForButton,
-					replyMarkup: keyboard,
-					cancellationToken: clt,
-					photo: user.PhotoId
-					);
-			}
-			else
-			{
-				await bot.SendMessage(chatID, "Профиль не заполнен полностью");
+				long? chatID = TelegramBotUtilities.ReturnChatID(update);
+				var keyboard = Keyboards.ReturnFromProfile();
+				string? username = TelegramBotUtilities.ReturnUsername(update);
+				string? messageForButton = await TelegramBotUtilities.ReturnProfileText(db, update);
+				var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
+
+				if (messageForButton != null && chatID != null && user != null && user.PhotoId != null && user.Name != null)
+				{
+					await bot.SendPhoto(
+						chatId: chatID,
+						caption: messageForButton,
+						replyMarkup: keyboard,
+						cancellationToken: clt,
+						photo: user.PhotoId
+						);
+				}
+				else
+				{
+					if (chatID == null)
+						return;
+					await bot.SendMessage(chatID, "Профиль не заполнен полностью");
+				}
 			}
 		}
 		#endregion 
@@ -104,9 +118,9 @@ namespace ModesLogic
 			}
 		}
 
-
 		public static async Task TakeData(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts, AppDbContext db)
 		{
+
 			var userId = update.Message?.From?.Id ?? update.CallbackQuery?.From?.Id;
 			if (userId == null)
 				return;
@@ -136,7 +150,6 @@ namespace ModesLogic
 			}
 			else if(regStatus.UserRegStatus == 6)
 			{
-				var keyboard = Keyboards.ReturnFromReg();
 				if(update.Message != null)
 				{
 					var chatid = update.Message.Chat.Id;
@@ -177,12 +190,11 @@ namespace ModesLogic
 		private static async Task TakeName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken cts)
 		{
 			long? chatid = TelegramBotUtilities.ReturnChatID(update);
-			string? text = "Введите имя:";
 			if (chatid != null)
 			{
 				await bot.SendMessage(
 					chatId: chatid,
-					text: text,
+					text: "Введите имя:",
 					cancellationToken: cts
 					);
 			}
@@ -214,49 +226,56 @@ namespace ModesLogic
 			}
 		}
 
-		public static bool CheckStatus(Telegram.Bot.Types.Update update, AppDbContext db)
+		public static async Task<bool> CheckStatus(Telegram.Bot.Types.Update update, AppDbContext db)
 		{
+			if(update?.Message?.From == null)
+				return false;
 			long telegramId = update.Message.From.Id;
-			return db.Users.Any(user => user.TelegramID == telegramId);
+			return await db.Users.AnyAsync(user => user.TelegramID == telegramId);
 		}
-
 
 		#endregion
 
-		#region Answer on profile methods
+		#region Answer on profile registration methods
 		public static async Task AnswerOnTakeGender(string data, UserProfile? user, Telegram.Bot.Types.Update update, ITelegramBotClient bot, AppDbContext db, UserRegistrationService userregStat)
 		{
-			user.Gender = data;
-			var chatId = update.CallbackQuery.Message.Chat.Id;
-			var messageId = update.CallbackQuery.Message.MessageId;
-			await bot.DeleteMessage(chatId, messageId);
-			userregStat.UserRegStatus = 2;
-			await db.SaveChangesAsync();
-			await bot.SendMessage(
-				chatId,
-				$"Ваш пол: {data}",
-				replyMarkup: Keyboards.ContinueReg()
-				);
+			if (user != null && update?.CallbackQuery?.Message != null)
+			{
+				user.Gender = data;
+				var chatId = update.CallbackQuery.Message.Chat.Id;
+				var messageId = update.CallbackQuery.Message.MessageId;
+				await bot.DeleteMessage(chatId, messageId);
+				userregStat.UserRegStatus = 2;
+				await db.SaveChangesAsync();
+				await bot.SendMessage(
+					chatId,
+					$"Ваш пол: {data}",
+					replyMarkup: Keyboards.ContinueReg()
+					);
+			}
 		}
 
-		public static async Task AnswerOnTakeGroup(AppDbContext db, string data, Telegram.Bot.Types.Update update, UserProfile user, ITelegramBotClient bot, UserRegistrationService userregStat)
+		public static async Task AnswerOnTakeGroup(ITelegramBotClient bot, string data, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userregStat, UserProfile user)
 		{
-			var group = await db.Groups.FirstOrDefaultAsync(grp => grp.Name == data);
-			var messageId = update.CallbackQuery.Message.MessageId;
-			var chatId = update.CallbackQuery.Message.Chat.Id;
-			if (group != null)
+			if (update?.CallbackQuery?.Message != null)
 			{
-				await bot.DeleteMessage(chatId, messageId);
-				user.group = group;
-				user.GroupID = group.Id;
-				userregStat.UserRegStatus = 3;
-				await db.SaveChangesAsync();
+				var group = await db.Groups.FirstOrDefaultAsync(grp => grp.Name == data);
+				var messageId = update.CallbackQuery.Message.MessageId;
+				var chatId = update.CallbackQuery.Message.Chat.Id;
+				if (group != null)
+				{
+					await bot.DeleteMessage(chatId, messageId);
+					user.group = group;
+					user.GroupID = group.Id;
+					userregStat.UserRegStatus = 3;
+					await db.SaveChangesAsync();
+				}
+				await bot.SendMessage(
+					chatId,
+					$"Вы состоите в группе {data}",
+					replyMarkup: Keyboards.ContinueReg()
+					);
 			}
-			await bot.SendMessage(
-				chatId,
-				$"Вы состоите в группе {data}",
-				replyMarkup: Keyboards.ContinueReg()
-				);
 		}
 
 		public static async Task AnswerOnTakeName(ITelegramBotClient bot, string data, Telegram.Bot.Types.Update update, UserProfile user, AppDbContext db, UserRegistrationService userregStat)
@@ -289,19 +308,37 @@ namespace ModesLogic
 
 		public static async Task AnswerOnTakePhoto(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userregStat)
 		{
-			var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
-			if (user != null && update.Message != null)
+			if (update.Message?.From != null)
 			{
-				var photoList = update.Message.Photo;
-				if (photoList != null)
+				var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+				if (user != null && update.Message != null)
 				{
-					var photoId = photoList.Last();
-					user.PhotoId = photoId.FileId;
-					userregStat.UserRegStatus = 6;
-					await bot.SendMessage(update.Message.Chat.Id, "Изображение установлено👌");
-					await db.SaveChangesAsync();
+					var photoList = update.Message.Photo;
+					if (photoList != null)
+					{
+						var photoId = photoList.Last();
+						user.PhotoId = photoId.FileId;
+						userregStat.UserRegStatus = 6;
+						await bot.SendMessage(update.Message.Chat.Id, "Изображение установлено👌");
+						await db.SaveChangesAsync();
+					}
 				}
 			}
+		}
+		#endregion
+
+		#region Modestatus handler
+		public static async Task ChangeModeStatus(Telegram.Bot.Types.Update update, AppDbContext db, int status)
+		{
+			if(update.Message?.From?.Id == null) 
+				return;
+
+			var userModeStatus = await db.ModeServices.FirstOrDefaultAsync(m => m.TelegramId == update.Message.From.Id);
+
+			if (userModeStatus == null)
+				return;
+			userModeStatus.ModeStatus = status;
+			await db.SaveChangesAsync();
 		}
 		#endregion
 	}
