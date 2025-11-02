@@ -112,6 +112,7 @@ namespace HelperNamespce
 			{
 				new KeyboardButton[]{ "Поиск пары🎆" },
 				new KeyboardButton[]{ "Просмотреть приглашения👀" },
+				new KeyboardButton[]{ "Вернуться назад" }
 			})
 			{
 				ResizeKeyboard = true,

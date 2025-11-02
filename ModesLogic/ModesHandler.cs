@@ -38,40 +38,45 @@ namespace ModesLogic
 		#region Profile
 		public static async Task ProfileMode(ITelegramBotClient bot, Telegram.Bot.Types.Update update, CancellationToken clt, AppDbContext db)
 		{
-			if (update?.Message?.From != null)
-			{
-				long? chatID = TelegramBotUtilities.ReturnChatID(update);
-				var keyboard = Keyboards.ReturnFromProfile();
-				string? username = TelegramBotUtilities.ReturnUsername(update);
-				string? messageForButton = await TelegramBotUtilities.ReturnBaseProfileText(db, update);
-				var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
+			if (update?.Message?.From == null)
+				return;
 
-				if (messageForButton != null && chatID != null && user != null && user.PhotoId != null && user.Name != null)
-				{
-					await bot.SendPhoto(
-						chatId: chatID,
-						caption: messageForButton,
-						replyMarkup: keyboard,
-						cancellationToken: clt,
-						photo: user.PhotoId
-						);
-				}
-				else
-				{
-					if (chatID == null)
-						return;
-					await bot.SendMessage(chatID, "Профиль не заполнен полностью");
-				}
+			long? chatID = TelegramBotUtilities.ReturnChatID(update);
+			var keyboard = Keyboards.ReturnFromProfile();
+			string? username = TelegramBotUtilities.ReturnUsername(update);
+			string? messageForButton = await TelegramBotUtilities.ReturnBaseProfileText(db, update);
+			var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
+
+			if (messageForButton != null && chatID != null && user != null && user.PhotoId != null && user.Name != null)
+			{
+				await bot.SendPhoto(
+					chatId: chatID,
+					caption: messageForButton,
+					replyMarkup: keyboard,
+					cancellationToken: clt,
+					photo: user.PhotoId
+					);
+			}
+			else
+			{
+				if (chatID == null)
+					return;
+				await bot.SendMessage(chatID, "Профиль не заполнен полностью", replyMarkup: Keyboards.ReturnFromProfile());
 			}
 		}
 		#endregion 
 
 		#region Select partner menu
-		public static async Task PartnerShowcaseMenu(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
+		public static async Task PartnerShowcaseMenu(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if (update?.Message?.From == null)
 				return;
 
+			if (!await TelegramBotUtilities.CheckProfileFill(update, db))
+			{
+				await bot.SendMessage(update.Message.Chat.Id, "Пожалуйста заполните профиль полностью");
+				return;
+			}
 			await bot.SendMessage(update.Message.Chat.Id,
 				"Выберите действие: ",
 				replyMarkup: Keyboards.ChooseModeInPS()
@@ -80,17 +85,18 @@ namespace ModesLogic
 
 		public static async Task FindPair(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
-			if(update?.Message?.From == null)
+			if (update?.Message?.From == null)
 				return;
 
-			var targetQuery = db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
-			var baseuserQuery = db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id); 
+			if (!await db.TargetPartnerServices.AnyAsync(t => t.TelegramID == update.Message.From.Id))
+			{
+				await db.TargetPartnerServices.AddAsync(new TargetPartnerService { TelegramID = update.Message.From.Id, LastUserId = 0 });
+				await db.SaveChangesAsync();
+			}
 
-			await Task.WhenAll(targetQuery, baseuserQuery);
-
-			var target = targetQuery.Result;
-			var	baseuser = baseuserQuery.Result;
-			if( target == null || baseuser == null)
+			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			if (target == null || baseuser == null)
 				return;
 
 			var targetuser = await db.Users.FirstOrDefaultAsync(tu => tu.Id > target.LastUserId && tu.Gender != baseuser.Gender);
@@ -99,18 +105,45 @@ namespace ModesLogic
 				await bot.SendMessage(update.Message.Chat.Id, "К сожелению я никого не нашел тебе😔");
 				return;
 			}
+			if (!TelegramBotUtilities.CheckProfileFillByUser(update, targetuser))
+				return;
 
+			await bot.SendPhoto(
+				chatId: update.Message.Chat.Id,
+				caption: await TelegramBotUtilities.ReturnTargetProfileText(targetuser, db),
+				replyMarkup: Keyboards.LikeDislikeButtons(),
+				photo: targetuser.PhotoId
+				);
 
+			target.LastUserId = targetuser.Id;
+		}
 
-			//if (targetuser == null || targetuser.PhotoId == null)
-			//	return;
+		public static async Task HandleLike(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return;
 
-			//await bot.SendPhoto(
-			//	chatId: update.Message.Chat.Id,
-			//	caption: await TelegramBotUtilities.ReturnTargetProfileText(targetuser, db),
-			//	replyMarkup: Keyboards.LikeDislikeButtons(),
-			//	photo: targetuser.PhotoId
-			//	);
+			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+
+			if(target == null) 
+				return;
+
+			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == target.LastUserId);
+			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			if (targetuser == null || baseuser == null) 
+				return;
+
+			if (baseuser.Gender == "Female")
+			{
+				await db.Likes.AddAsync(new Like { MaleId = targetuser.Id, FemaleId = baseuser.Id });
+				await bot.SendMessage(update.Message.Chat.Id, "Проверь приглашения, тебе поставили лайк🗣️");
+			}
+			else if(baseuser.Gender == "Male")
+			{
+				await db.Likes.AddAsync(new Like { MaleId = baseuser.Id, FemaleId = targetuser.Id });
+				await bot.SendMessage(update.Message.Chat.Id, "Проверь приглашения, тебе поставили лайк🗣️");
+			}
+
 		}
 		#endregion
 
@@ -278,9 +311,7 @@ namespace ModesLogic
 			long telegramId = update.Message.From.Id;
 			return await db.Users.AnyAsync(user => user.TelegramID == telegramId);
 		}
-
-		#endregion
-
+		
 		#region Answer on profile registration methods
 		public static async Task AnswerOnTakeGender(string data, UserProfile? user, Telegram.Bot.Types.Update update, ITelegramBotClient bot, AppDbContext db, UserRegistrationService userregStat)
 		{
@@ -370,6 +401,8 @@ namespace ModesLogic
 				}
 			}
 		}
+		#endregion
+		
 		#endregion
 
 		#region Modestatus handler

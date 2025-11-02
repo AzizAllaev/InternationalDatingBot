@@ -65,10 +65,9 @@ namespace Handlers
 						case "Убарть себя из списка📌":
 							break; // !!! Field that delete all data about user from DB !!!
 						case "Выбор кандидата🪩":
-							await ModesHandlers.PartnerShowcaseMenu(bot, update);
+							await ModesHandlers.PartnerShowcaseMenu(bot, update, db);
 							await ModesHandlers.ChangeModeStatus(update, db, 2);
 							break; // !!! Field that start partner showcase !!!
-
 
 						// Respond on service buttons
 						case "Данные анкеты👁️":
@@ -91,10 +90,7 @@ namespace Handlers
 
 						// Respond on partner showcase buttons
 						case "Поиск пары🎆":
-							// -----------
-							//var status = await db.ModeServices.FirstOrDefaultAsync(s => s.TelegramId == update.Message.From.Id);
-							//if(status != null && status.ModeStatus == 2)
-							//	//---;
+							await ModesHandlers.FindPair(bot, update, db);
 							break;
 						case "Просмотреть приглашения👀":
 							break;

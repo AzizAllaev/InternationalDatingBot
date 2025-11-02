@@ -73,5 +73,30 @@ namespace HelperNamespace
 			return update?.Message?.From?.Username;
 		}
 		#endregion
+
+
+		#region Check user profile data
+		public static async Task<bool> CheckProfileFill(Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return false;
+
+			var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			if (user == null)
+				return false;
+
+			if (user.PhotoId == null || user.Name == null || user.LastName == null || user.GroupID == null)
+				return false;
+			else
+				return true;
+		}
+		public static bool CheckProfileFillByUser(Update update, UserProfile user)
+		{
+			if (user.PhotoId == null || user.Name == null || user.LastName == null || user.GroupID == null)
+				return false;
+
+			return true;
+		}
+		#endregion
 	}
 }
