@@ -94,6 +94,10 @@ namespace Handlers
 							break;
 						case "Просмотреть приглашения👀":
 							break;
+						case "👍":
+							await ModesHandlers.HandleLike(bot, update, db);
+							break;
+
 					}
 				}
 			}

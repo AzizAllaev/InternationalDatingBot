@@ -127,23 +127,47 @@ namespace ModesLogic
 
 			if(target == null) 
 				return;
-
-			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == target.LastUserId);
+			
 			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
-			if (targetuser == null || baseuser == null) 
+			if (baseuser == null) 
 				return;
+
+			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id == target.LastUserId || u.Gender != baseuser.Gender);
+			if (targetuser == null || target.TelegramID == 0)
+				return;
+
+			Console.WriteLine($"Лайкнули: {targetuser.Name} || {targetuser.Gender} || {targetuser.TelegramID}");
+			await bot.SendMessage(targetuser.TelegramID, "Тебе поставили лайк, проверь приглашения🗣️");
+
 
 			if (baseuser.Gender == "Female")
 			{
-				await db.Likes.AddAsync(new Like { MaleId = targetuser.Id, FemaleId = baseuser.Id });
-				await bot.SendMessage(update.Message.Chat.Id, "Проверь приглашения, тебе поставили лайк🗣️");
+				if (await db.Likes.AnyAsync(l => l.FemaleId == baseuser.Id))
+				{
+					return;
+				}
 			}
 			else if(baseuser.Gender == "Male")
 			{
-				await db.Likes.AddAsync(new Like { MaleId = baseuser.Id, FemaleId = targetuser.Id });
-				await bot.SendMessage(update.Message.Chat.Id, "Проверь приглашения, тебе поставили лайк🗣️");
+				if (await db.Likes.AnyAsync(l => l.MaleId == baseuser.Id))
+				{
+					return;
+				}
 			}
-
+			
+			Like like = new Like();
+			if (targetuser.Gender == "Female")
+			{
+				like.FemaleId = targetuser.Id;
+				like.MaleId = baseuser.Id;
+			}
+			else if(targetuser.Gender == "Male")
+			{
+				like.FemaleId = baseuser.Id;
+				like.MaleId = targetuser.Id;
+			}
+			await db.Likes.AddAsync(like);
+			await db.SaveChangesAsync();
 		}
 		#endregion
 
