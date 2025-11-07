@@ -97,6 +97,9 @@ namespace Handlers
 						case "👍":
 							await ModesHandlers.HandleLike(bot, update, db);
 							break;
+						case "Отмотать⬆️":
+							await ModesHandlers.HandleReverse(bot, update, db);
+							break;
 
 					}
 				}

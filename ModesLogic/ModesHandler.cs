@@ -87,27 +87,32 @@ namespace ModesLogic
 		{
 			if (update?.Message?.From == null)
 				return;
-
+			
+			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
 			if (!await db.TargetPartnerServices.AnyAsync(t => t.TelegramID == update.Message.From.Id))
 			{
 				await db.TargetPartnerServices.AddAsync(new TargetPartnerService { TelegramID = update.Message.From.Id, LastUserId = 0 });
 				await db.SaveChangesAsync();
 			}
-
-			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
-			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
-			if (target == null || baseuser == null)
+			if (baseuser == null)
 				return;
-
-			var targetuser = await db.Users.FirstOrDefaultAsync(tu => tu.Id > target.LastUserId && tu.Gender != baseuser.Gender);
-			if (targetuser == null)
+			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+			if (target == null)
+				return;
+			
+			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id > target.LastUserId && u.Gender != baseuser.Gender);
+			if(targetuser == null)
 			{
-				await bot.SendMessage(update.Message.Chat.Id, "К сожелению я никого не нашел тебе😔");
+				target.LastUserId = 0;
+				await db.SaveChangesAsync();
+			}
+			Console.WriteLine("Метод запустился");
+			if (targetuser.PhotoId == null || targetuser.Name == null || targetuser.GroupID == null || targetuser.LastName == null)
+			{
+				target.LastUserId = targetuser.Id + 1;
 				return;
 			}
-			if (!TelegramBotUtilities.CheckProfileFillByUser(update, targetuser))
-				return;
-
+			Console.WriteLine($"Target: {targetuser.Name} || {targetuser.Username}");
 			await bot.SendPhoto(
 				chatId: update.Message.Chat.Id,
 				caption: await TelegramBotUtilities.ReturnTargetProfileText(targetuser, db),
@@ -116,6 +121,40 @@ namespace ModesLogic
 				);
 
 			target.LastUserId = targetuser.Id;
+			await db.SaveChangesAsync();
+			#region old code
+			//if (update?.Message?.From == null)
+			//	return;
+
+			//if (!await db.TargetPartnerServices.AnyAsync(t => t.TelegramID == update.Message.From.Id))
+			//{
+			//	await db.TargetPartnerServices.AddAsync(new TargetPartnerService { TelegramID = update.Message.From.Id, LastUserId = 0 });
+			//}
+
+			//var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+			//var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			//if (target == null || baseuser == null)
+			//	return;
+			//Console.WriteLine("Test");
+			//var targetuser = await db.Users.FirstOrDefaultAsync(tu => tu.Id > target.LastUserId && tu.Gender != baseuser.Gender);
+			//if (targetuser == null)
+			//{
+			//	await bot.SendMessage(update.Message.Chat.Id, "К сожелению я никого не нашел тебе😔");
+			//	return;
+			//}
+			//if (!TelegramBotUtilities.CheckProfileFillByUser(update, targetuser))
+			//	return;
+
+			//await bot.SendPhoto(
+			//	chatId: update.Message.Chat.Id,
+			//	caption: await TelegramBotUtilities.ReturnTargetProfileText(targetuser, db),
+			//	replyMarkup: Keyboards.LikeDislikeButtons(),
+			//	photo: targetuser.PhotoId
+			//	);
+
+			//target.LastUserId = targetuser.Id;
+			//await db.SaveChangesAsync();
+			#endregion
 		}
 
 		public static async Task HandleLike(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
@@ -124,49 +163,81 @@ namespace ModesLogic
 				return;
 
 			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
-
-			if(target == null) 
-				return;
-			
 			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
-			if (baseuser == null) 
+			if (baseuser == null || target == null) 
 				return;
 
 			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id == target.LastUserId || u.Gender != baseuser.Gender);
-			if (targetuser == null || target.TelegramID == 0)
+			if(targetuser == null)
+			{
+				target.LastUserId = 0;
+				await db.SaveChangesAsync();
+			}
+
+			await bot.SendMessage(targetuser.TelegramID, "Вам поставили лайк");
+
+			if(baseuser.Gender == "Male")
+			{
+				if (!await db.Likes.AnyAsync(l => l.MaleId == baseuser.Id))
+				{
+					await db.Likes.AddAsync(new Like { MaleId = baseuser.Id, FemaleId = targetuser.Id, SenderId = baseuser.Id });
+				}
+			}
+			else if(baseuser.Gender == "Female")
+			{
+				if (!await db.Likes.AnyAsync(l => l.FemaleId == baseuser.Id))
+				{
+					await db.Likes.AddAsync(new Like { MaleId = targetuser.Id, FemaleId = baseuser.Id, SenderId = baseuser.Id });
+				}
+			}
+
+			await db.SaveChangesAsync();
+			#region old code
+			//Console.WriteLine($"Лайкнули: {targetuser.Name} || {targetuser.Gender} || {targetuser.TelegramID}");
+			//await bot.SendMessage(targetuser.TelegramID, "Тебе поставили лайк, проверь приглашения🗣️");
+
+
+			//if (baseuser.Gender == "Female")
+			//{
+			//	if (await db.Likes.AnyAsync(l => l.FemaleId == baseuser.Id))
+			//	{
+			//		return;
+			//	}
+			//}
+			//else if(baseuser.Gender == "Male")
+			//{
+			//	if (await db.Likes.AnyAsync(l => l.MaleId == baseuser.Id))
+			//	{
+			//		return;
+			//	}
+			//}
+
+			//Like like = new Like();
+			//if (targetuser.Gender == "Female")
+			//{
+			//	like.FemaleId = targetuser.Id;
+			//	like.MaleId = baseuser.Id;
+			//}
+			//else if(targetuser.Gender == "Male")
+			//{
+			//	like.FemaleId = baseuser.Id;
+			//	like.MaleId = targetuser.Id;
+			//}
+			//await db.Likes.AddAsync(like);
+			//await db.SaveChangesAsync(); 
+			#endregion
+		}
+			
+		public static async Task HandleReverse(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
 				return;
 
-			Console.WriteLine($"Лайкнули: {targetuser.Name} || {targetuser.Gender} || {targetuser.TelegramID}");
-			await bot.SendMessage(targetuser.TelegramID, "Тебе поставили лайк, проверь приглашения🗣️");
+			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+			if (target == null)
+				return;
 
-
-			if (baseuser.Gender == "Female")
-			{
-				if (await db.Likes.AnyAsync(l => l.FemaleId == baseuser.Id))
-				{
-					return;
-				}
-			}
-			else if(baseuser.Gender == "Male")
-			{
-				if (await db.Likes.AnyAsync(l => l.MaleId == baseuser.Id))
-				{
-					return;
-				}
-			}
-			
-			Like like = new Like();
-			if (targetuser.Gender == "Female")
-			{
-				like.FemaleId = targetuser.Id;
-				like.MaleId = baseuser.Id;
-			}
-			else if(targetuser.Gender == "Male")
-			{
-				like.FemaleId = baseuser.Id;
-				like.MaleId = targetuser.Id;
-			}
-			await db.Likes.AddAsync(like);
+			target.LastUserId -= 1;
 			await db.SaveChangesAsync();
 		}
 		#endregion

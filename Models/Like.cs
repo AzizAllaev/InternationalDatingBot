@@ -15,5 +15,7 @@ namespace Models
 
 		public int? FemaleId { get; set; }
 		public UserProfile? Female { get; set; }
+
+		public int SenderId { get; set; }
 	}
 }

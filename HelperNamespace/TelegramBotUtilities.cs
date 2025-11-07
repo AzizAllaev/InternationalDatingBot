@@ -40,8 +40,7 @@ namespace HelperNamespace
 			if(group == null)
 				return null;
 
-			string text = $"Имя пользователя: {targetuser.Username}\n" +
-						$"Группа: {group.Name}\n" +
+			string 	text = $"Группа: {group.Name}\n" +
 						$"ФИ профиля: {targetuser.Name} {targetuser.LastName}\n";
 			return text;
 		}
