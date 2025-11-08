@@ -105,11 +105,14 @@ namespace ModesLogic
 			{
 				target.LastUserId = 0;
 				await db.SaveChangesAsync();
+				await FindPair(bot, update, db);
+				return;
 			}
 			Console.WriteLine("Метод запустился");
 			if (targetuser.PhotoId == null || targetuser.Name == null || targetuser.GroupID == null || targetuser.LastName == null)
 			{
-				target.LastUserId = targetuser.Id + 1;
+				target.LastUserId = targetuser.Id;
+				await FindPair(bot, update, db);
 				return;
 			}
 			Console.WriteLine($"Target: {targetuser.Name} || {targetuser.Username}");
@@ -172,15 +175,21 @@ namespace ModesLogic
 			{
 				target.LastUserId = 0;
 				await db.SaveChangesAsync();
+				await FindPair(bot, update, db);
+				return;
 			}
-
-			await bot.SendMessage(targetuser.TelegramID, "Вам поставили лайк");
 
 			if(baseuser.Gender == "Male")
 			{
 				if (!await db.Likes.AnyAsync(l => l.MaleId == baseuser.Id))
 				{
 					await db.Likes.AddAsync(new Like { MaleId = baseuser.Id, FemaleId = targetuser.Id, SenderId = baseuser.Id });
+					await bot.SendMessage(targetuser.TelegramID, "Вас лайкнули");
+				}
+				else if (await db.Likes.AnyAsync(l => l.MaleId == baseuser.Id))
+				{
+					await bot.SendMessage(baseuser.TelegramID, $"У вас взаимный лайк с @{targetuser.Username}");
+					await bot.SendMessage(targetuser.TelegramID, $"У вас взаимный лайк с @{baseuser.Username}");
 				}
 			}
 			else if(baseuser.Gender == "Female")
@@ -188,6 +197,12 @@ namespace ModesLogic
 				if (!await db.Likes.AnyAsync(l => l.FemaleId == baseuser.Id))
 				{
 					await db.Likes.AddAsync(new Like { MaleId = targetuser.Id, FemaleId = baseuser.Id, SenderId = baseuser.Id });
+					await bot.SendMessage(targetuser.TelegramID, "Вас лайкнули");
+				}
+				else if (await db.Likes.AnyAsync(l => l.MaleId == baseuser.Id))
+				{
+					await bot.SendMessage(baseuser.TelegramID, $"У вас взаимный лайк с @{targetuser.Username}");
+					await bot.SendMessage(targetuser.TelegramID, $"У вас взаимный лайк с @{baseuser.Username}");
 				}
 			}
 
