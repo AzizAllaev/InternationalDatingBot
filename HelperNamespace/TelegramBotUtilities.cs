@@ -16,7 +16,7 @@ namespace HelperNamespace
 	public static class TelegramBotUtilities
 	{
 		#region Text
-		public static async Task<string?> ReturnBaseProfileText(AppDbContext db, Update update)
+		public static async Task<string?> ReturnBaseProfileText(Update update, AppDbContext db)
 		{
 			if (update?.Message?.From == null)
 				return null;
@@ -53,6 +53,18 @@ namespace HelperNamespace
 		{
 			string text = "Выберите вашу группу: ";
 			return text;
+		}
+		public static async Task ReturnLikedUsers(Update update, AppDbContext db)
+		{
+			if(update?.Message?.From == null) 
+				return;
+
+			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			if(baseuser == null) 
+				return;
+
+			if(baseuser)
+			var likeduser = await db.Users.Where(u => db.Likes.Where(l => l.MaleId == ))
 		}
 		#endregion
 
