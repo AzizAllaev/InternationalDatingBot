@@ -227,6 +227,7 @@ namespace ModesLogic
 		}
 		#endregion
 
+		#region Methods to find user
 		public static async Task<UserProfile?> GetBaseuser(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if (update?.Message?.From == null)
@@ -269,6 +270,8 @@ namespace ModesLogic
 			
 			await db.SaveChangesAsync();
 		}
+		#endregion
+
 		#endregion
 
 		#region Make proifle
