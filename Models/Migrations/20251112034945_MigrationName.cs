@@ -5,7 +5,7 @@
 namespace Models.Migrations
 {
     /// <inheritdoc />
-    public partial class MigrationName6 : Migration
+    public partial class MigrationName : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -83,7 +83,8 @@ namespace Models.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     MaleId = table.Column<int>(type: "int", nullable: true),
-                    FemaleId = table.Column<int>(type: "int", nullable: true)
+                    FemaleId = table.Column<int>(type: "int", nullable: true),
+                    SenderId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

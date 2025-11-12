@@ -44,7 +44,7 @@ namespace ModesLogic
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
 			var keyboard = Keyboards.ReturnFromProfile();
 			string? username = TelegramBotUtilities.ReturnUsername(update);
-			string? messageForButton = await TelegramBotUtilities.ReturnBaseProfileText(db, update);
+			string? messageForButton = await TelegramBotUtilities.ReturnBaseProfileText(update, db);
 			var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
 
 			if (messageForButton != null && chatID != null && user != null && user.PhotoId != null && user.Name != null)
@@ -65,7 +65,6 @@ namespace ModesLogic
 			}
 		}
 		#endregion
-
 		
 		#region Select partner menu
 
@@ -101,20 +100,21 @@ namespace ModesLogic
 				{
 					await db.TargetPartnerServices.AddAsync(new TargetPartnerService { TelegramID = update.Message.From.Id, LastUserId = 0 });
 					await db.SaveChangesAsync();
+					await FindPair(bot, update, db);
 					return;
 				}
 				return;
 			}
 			if (baseuser == null)
 				return;
+
 			if(targetuser == null)
 			{
 				target.LastUserId = 0;
 				await db.SaveChangesAsync();
-				await FindPair(bot, update, db);
+				await bot.SendMessage(baseuser.TelegramID, "Пользователей нет😒", replyMarkup: Keyboards.MakeMainMenuKeyboard());
 				return;
 			}
-
 			await SendTargetUserProfile(bot, update, db, targetuser, target);
 
 			target.LastUserId = targetuser.Id;
@@ -123,10 +123,11 @@ namespace ModesLogic
 
 		public static async Task SendTargetUserProfile(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser, TargetPartnerService target)
 		{
-			if (targetuser.PhotoId == null || targetuser.Name == null || targetuser.GroupID == null || targetuser.LastName == null)
+			if (targetuser.PhotoId == null || targetuser.Name == null || targetuser.GroupID == null || targetuser.LastName == null || targetuser.Username == null)
 			{
 				target.LastUserId = targetuser.Id;
 				await db.SaveChangesAsync();
+				await bot.SendMessage(targetuser.TelegramID, "К сожалению пользователи не видят вашего профиля, так как у вас отсутсвует юзер либо не заполнен профиль");
 				await FindPair(bot, update, db);
 				return;
 			}
@@ -147,12 +148,22 @@ namespace ModesLogic
 				return;
 
 			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
-			var baseuser = await GetBaseuser(bot, update, db);
-			var targetuser = await GetTargetuser(bot, update, db);
-
-			if (targetuser == null || baseuser == null)
+			if (target == null)
 				return;
-
+			var baseuser = await GetBaseuser(bot, update, db);
+			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id == target.LastUserId);
+			Console.WriteLine("заработал хуй");
+			if (baseuser == null)
+			{
+				Console.WriteLine("baseuser == null");
+				return;
+			}
+			if(targetuser == null)
+			{
+				Console.WriteLine("targetuser == null");
+				return;
+			}
+			Console.WriteLine("feeffewef");
 			await ProcessLike(bot, update, db, targetuser, baseuser);
 
 			await db.SaveChangesAsync();
@@ -231,16 +242,17 @@ namespace ModesLogic
 		{
 			if (update?.Message?.From == null)
 				return null;
-
+			Console.WriteLine("Начался поиск");
 			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
 			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
 			if (baseuser == null || target == null)
 				return null;
-
-			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id == target.LastUserId && u.Gender != baseuser.Gender);
+			
+			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id > target.LastUserId && u.Gender != baseuser.Gender);
 			if (targetuser == null)
 				return null;
-
+			Console.WriteLine("Поиск продолжается");
+			Console.WriteLine($"{targetuser.Name} {targetuser.LastName} {targetuser.Id} {targetuser.TelegramID}");
 			return targetuser;
 		}
 		public static async Task HandleReverse(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
@@ -258,7 +270,6 @@ namespace ModesLogic
 			await db.SaveChangesAsync();
 		}
 		#endregion
-
 
 		#region Make proifle
 

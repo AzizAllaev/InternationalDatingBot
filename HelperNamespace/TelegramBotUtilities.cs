@@ -63,8 +63,8 @@ namespace HelperNamespace
 			if(baseuser == null) 
 				return;
 
-			if(baseuser)
-			var likeduser = await db.Users.Where(u => db.Likes.Where(l => l.MaleId == ))
+			//if(baseuser)
+			//var likeduser = await db.Users.Where(u => db.Likes.Where(l => l.MaleId == ))
 		}
 		#endregion
 
@@ -84,7 +84,6 @@ namespace HelperNamespace
 			return update?.Message?.From?.Username;
 		}
 		#endregion
-
 
 		#region Check user profile data
 		public static async Task<bool> CheckProfileFill(Update update, AppDbContext db)
