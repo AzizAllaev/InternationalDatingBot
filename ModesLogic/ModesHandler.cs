@@ -110,9 +110,19 @@ namespace ModesLogic
 
 			if(targetuser == null)
 			{
-				target.LastUserId = 0;
-				await db.SaveChangesAsync();
-				await bot.SendMessage(baseuser.TelegramID, "Пользователей нет😒", replyMarkup: Keyboards.MakeMainMenuKeyboard());
+
+				if (await db.Users.AnyAsync(u => u.Id > 0 && u.Gender != baseuser.Gender))
+				{
+					target.LastUserId = 0;
+					await db.SaveChangesAsync();
+					await FindPair(bot, update, db);
+				}
+				else
+				{
+					target.LastUserId = 0;
+					await db.SaveChangesAsync();
+					await bot.SendMessage(baseuser.TelegramID, "Пользователей нет😒", replyMarkup: Keyboards.MakeMainMenuKeyboard());
+				}
 				return;
 			}
 			await SendTargetUserProfile(bot, update, db, targetuser, target);
@@ -152,7 +162,6 @@ namespace ModesLogic
 				return;
 			var baseuser = await GetBaseuser(bot, update, db);
 			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id == target.LastUserId);
-			Console.WriteLine("заработал хуй");
 			if (baseuser == null)
 			{
 				Console.WriteLine("baseuser == null");
@@ -163,13 +172,11 @@ namespace ModesLogic
 				Console.WriteLine("targetuser == null");
 				return;
 			}
-			Console.WriteLine("feeffewef");
 			await ProcessLike(bot, update, db, targetuser, baseuser);
 
 			await db.SaveChangesAsync();
 			await FindPair(bot, update, db);
 		}
-
 		public static async Task ProcessLike(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser, UserProfile baseuser)
 		{
 			if (baseuser.Gender == "Male")
@@ -218,12 +225,40 @@ namespace ModesLogic
 
 			db.Likes.Entry(like).State = EntityState.Deleted;
 		}
+
+
+		public static async Task HandleDislike(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			await FindPair(bot, update, db);
+		}
 		#endregion
 
 		#region View all likes
 		public static async Task ViewLikes(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
+			if (update?.Message?.From == null)
+				return;
 
+			var baseuser = await GetBaseuser(bot, update, db);
+			if (baseuser == null) 
+				return;
+
+			if (baseuser.Gender == "Male")
+			{
+				var a = db.Likes.Where(l => l.MaleId == baseuser.Id && l.SenderId != baseuser.Id);
+				foreach (var userid in a)
+				{
+					Console.WriteLine(userid.FemaleId);
+				}
+			}
+			else if(baseuser.Gender == "Female")
+			{
+				var a = db.Likes.Where(l => l.FemaleId == baseuser.Id && l.SenderId != baseuser.Id);
+				foreach(var userid in a)
+				{
+					Console.WriteLine(userid);
+				}
+			}
 		}
 		#endregion
 
@@ -243,7 +278,6 @@ namespace ModesLogic
 		{
 			if (update?.Message?.From == null)
 				return null;
-			Console.WriteLine("Начался поиск");
 			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
 			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
 			if (baseuser == null || target == null)
@@ -252,7 +286,6 @@ namespace ModesLogic
 			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id > target.LastUserId && u.Gender != baseuser.Gender);
 			if (targetuser == null)
 				return null;
-			Console.WriteLine("Поиск продолжается");
 			Console.WriteLine($"{targetuser.Name} {targetuser.LastName} {targetuser.Id} {targetuser.TelegramID}");
 			return targetuser;
 		}

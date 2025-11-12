@@ -95,13 +95,17 @@ namespace Handlers
 								await ModesHandlers.FindPair(bot, update, db);
 								break;
 							case "Просмотреть приглашения👀":
+								await ModesHandlers.ViewLikes(bot, update, db);
 								break;
 							case "👍":
 								await ModesHandlers.HandleLike(bot, update, db);
 								break;
-							case "Отмотать⬆️":
-								await ModesHandlers.HandleReverse(bot, update, db);
+							case "👎":
+								await ModesHandlers.HandleDislike(bot, update, db);
 								break;
+							//case "Отмотать⬆️":
+							//	await ModesHandlers.HandleReverse(bot, update, db);
+							//	break;
 
 						}
 					}
