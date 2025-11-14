@@ -11,7 +11,7 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251112034945_MigrationName")]
+    [Migration("20251114190030_MigrationName")]
     partial class MigrationName
     {
         /// <inheritdoc />

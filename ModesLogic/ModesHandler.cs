@@ -191,7 +191,7 @@ namespace ModesLogic
 				{
 					await bot.SendMessage(baseuser.TelegramID, $"У вас взаимный лайк с @{targetuser.Username}");
 					await bot.SendMessage(targetuser.TelegramID, $"У вас взаимный лайк с @{baseuser.Username}");
-					await DeleteLike(bot, update, db);
+					await DeleteLike(bot, update, db, targetuser);
 				}
 			}
 			else if (baseuser.Gender == "Female")
@@ -206,20 +206,20 @@ namespace ModesLogic
 				{
 					await bot.SendMessage(baseuser.TelegramID, $"У вас взаимный лайк с @{targetuser.Username}");
 					await bot.SendMessage(targetuser.TelegramID, $"У вас взаимный лайк с @{baseuser.Username}");
-					await DeleteLike(bot, update, db);
+					await DeleteLike(bot, update, db, targetuser);
 				}
 			}
 		}
-		public static async Task DeleteLike(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		public static async Task DeleteLike(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser)
 		{
 			if(update?.Message?.From == null)
 				return;
 			
-			var user = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
-			if (user == null) 
+			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			if (baseuser == null) 
 				return;
 
-			var like = await db.Likes.FirstOrDefaultAsync(l => l.MaleId == user.Id || l.FemaleId == user.Id);
+			var like = await db.Likes.FirstOrDefaultAsync(l => l.FemaleId == baseuser.Id && l.MaleId == targetuser.Id && l.SenderId == targetuser.Id);
 			if (like == null) 
 				return;
 
@@ -240,25 +240,50 @@ namespace ModesLogic
 				return;
 
 			var baseuser = await GetBaseuser(bot, update, db);
-			if (baseuser == null) 
+			if (baseuser == null)
 				return;
+
+			List<int> ?userIds;
 
 			if (baseuser.Gender == "Male")
 			{
-				var a = db.Likes.Where(l => l.MaleId == baseuser.Id && l.SenderId != baseuser.Id);
-				foreach (var userid in a)
-				{
-					Console.WriteLine(userid.FemaleId);
-				}
+				userIds = await db.Likes
+					.Where(l => l.MaleId == baseuser.Id && l.FemaleId.HasValue && l.SenderId != baseuser.Id)
+					.Select(l => l.FemaleId!.Value)
+					.ToListAsync();
 			}
 			else if(baseuser.Gender == "Female")
 			{
-				var a = db.Likes.Where(l => l.FemaleId == baseuser.Id && l.SenderId != baseuser.Id);
-				foreach(var userid in a)
-				{
-					Console.WriteLine(userid);
-				}
+				userIds = await db.Likes
+					.Where(l => l.FemaleId == baseuser.Id && l.MaleId.HasValue && l.SenderId != baseuser.Id)
+					.Select(l => l.MaleId!.Value)
+					.ToListAsync();
 			}
+			else
+			{
+				userIds = null;
+			}
+
+			if (userIds == null || userIds.Count == 0)
+			{
+				await bot.SendMessage(baseuser.TelegramID, "Пока никто не лайкал ваш профиль.");
+				return;
+			}
+
+			var users = await db.Users
+				.Include(u => u.group)
+				.Where(u => userIds.Contains(u.Id))
+				.ToListAsync();
+
+			var sb = new System.Text.StringBuilder();
+
+			foreach (var user in users)
+			{
+				var groupName = user.group?.Name ?? "Без группы";
+				sb.AppendLine($"ID: {user.Id} \n ФИ: {user.Name} {user.LastName} \n Группа: {groupName} \n Юзер: @{user.Username}");
+			}
+
+			await bot.SendMessage(baseuser.TelegramID, sb.ToString());
 		}
 		#endregion
 
