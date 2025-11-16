@@ -42,12 +42,22 @@ namespace ModesLogic
 				return;
 
 			long? chatID = TelegramBotUtilities.ReturnChatID(update);
+			if (!chatID.HasValue)
+				return;
+
 			var keyboard = Keyboards.ReturnFromProfile();
 			string? username = TelegramBotUtilities.ReturnUsername(update);
 			string? messageForButton = await TelegramBotUtilities.ReturnBaseProfileText(update, db);
 			var user = await db.Users.FirstOrDefaultAsync(x => x.TelegramID == update.Message.From.Id);
+			if (user == null)
+			{
+				await bot.SendMessage(chatID, "Профиль не заполнен", replyMarkup: Keyboards.ReturnFromProfile());
+				return;
+			}
 
-			if (messageForButton != null && chatID != null && user != null && user.PhotoId != null && user.Name != null)
+			await UsernameController(update, db, bot, user);
+
+			if (messageForButton != null && user != null && user.PhotoId != null && user.Name != null)
 			{
 				await bot.SendPhoto(
 					chatId: chatID,
@@ -57,15 +67,34 @@ namespace ModesLogic
 					photo: user.PhotoId
 					);
 			}
-			else
-			{
-				if (chatID == null)
-					return;
-				await bot.SendMessage(chatID, "Профиль не заполнен полностью", replyMarkup: Keyboards.ReturnFromProfile());
-			}
 		}
 		#endregion
-		
+
+		#region Delete user from DB
+		public static async Task DeleteUser(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if(update?.Message?.From == null) 
+				return;
+
+			var user = await db.Users.FirstOrDefaultAsync(u => update.Message.From.Id == u.TelegramID);
+			if (user == null)
+			{
+				await bot.SendMessage(update.Message.From.Id, $"Ваших данных в базе нет🤔");
+				return;
+			}
+			//if (user.Gender == "Female")
+			//{
+			//	var likes = await db.Likes.Where(l => l.FemaleId == user.Id).ToListAsync();
+			//	var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+			//	var 
+			//}
+
+			db.Remove(user);
+			await db.SaveChangesAsync();
+			await bot.SendMessage(update.Message.From.Id, "Ваши данные были удалены из базы😉");
+		}
+		#endregion
+
 		#region Select partner menu
 
 		#region Partner showcase
@@ -225,7 +254,6 @@ namespace ModesLogic
 
 			db.Likes.Entry(like).State = EntityState.Deleted;
 		}
-
 
 		public static async Task HandleDislike(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
@@ -587,10 +615,10 @@ namespace ModesLogic
 			}
 		}
 		#endregion
-		
+
 		#endregion
 
-		#region Modestatus handler
+		#region Other
 		public static async Task ChangeModeStatus(Telegram.Bot.Types.Update update, AppDbContext db, int status)
 		{
 			if (update.Message?.From == null)
@@ -600,7 +628,7 @@ namespace ModesLogic
 				await db.ModeServices.AddAsync(new ModeService { TelegramId = update.Message.From.Id });
 				await db.SaveChangesAsync();
 			}
-				
+
 			var userModeStatus = await db.ModeServices.FirstOrDefaultAsync(m => m.TelegramId == update.Message.From.Id);
 
 			if (userModeStatus == null)
@@ -608,6 +636,32 @@ namespace ModesLogic
 			userModeStatus.ModeStatus = status;
 			await db.SaveChangesAsync();
 		}
+		private static async Task UsernameController(Telegram.Bot.Types.Update update, AppDbContext db, ITelegramBotClient bot, UserProfile user)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			bool? test = TelegramBotUtilities.CheckActualUsername(update, user);
+
+			switch (test)
+			{
+				case null:
+					await bot.SendMessage(update.Message.From.Id, "Поставьте имя пользователя для корректной работы бота, и для отобрежения другим пользователям❎");
+					break;
+				case false:
+					user.Username = update.Message.From.Username;
+					await db.SaveChangesAsync();
+					break;
+			}
+		}
+
+		//public static async Task<int> ReturnModeStatus(Telegram.Bot.Types.Update update, AppDbContext db, int status)
+		//{
+		//	if (update?.Message?.From == null)
+		//		return 0;
+
+		//	var status = await db.ModeServices.FirstOrDefaultAsync(s => 
+		//}
 		#endregion
 	}
 }

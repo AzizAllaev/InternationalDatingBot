@@ -29,7 +29,7 @@ namespace HelperNamespace
 			if (group == null || user == null)
 				return null;
 
-			string text = $"Имя пользователя: {user.Username}\n" +
+			string text = $"Имя пользователя: {update.Message.From.Username}\n" +
 						$"Группа: {group.Name}\n" +
 						$"ФИ профиля: {user.Name} {user.LastName}\n";
 			return text;
@@ -53,18 +53,6 @@ namespace HelperNamespace
 		{
 			string text = "Выберите вашу группу: ";
 			return text;
-		}
-		public static async Task ReturnLikedUsers(Update update, AppDbContext db)
-		{
-			if(update?.Message?.From == null) 
-				return;
-
-			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
-			if(baseuser == null) 
-				return;
-
-			//if(baseuser)
-			//var likeduser = await db.Users.Where(u => db.Likes.Where(l => l.MaleId == ))
 		}
 		#endregion
 
@@ -106,6 +94,27 @@ namespace HelperNamespace
 				return false;
 
 			return true;
+		}
+		public static bool? CheckActualUsername(Update update, UserProfile user)
+		{
+			if (update?.Message?.From == null)
+				return false;
+
+			if (update.Message.From.Username == null)
+				return null;
+
+			if (user.Username == update.Message.From.Username)
+			{
+				return true;
+			}
+			else if (user.Username != update.Message.From.Username)
+			{
+				return false;
+			}
+			else
+			{
+				return null;
+			}
 		}
 		#endregion
 	}

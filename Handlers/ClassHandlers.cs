@@ -40,6 +40,7 @@ namespace Handlers
 
 				if (update?.Message?.From != null)
 				{
+					
 					string? text = TelegramBotUtilities.ReturnNewMessage(update);
 					if (text != null)
 					{
@@ -65,6 +66,7 @@ namespace Handlers
 								await ModesHandlers.ChangeModeStatus(update, db, 1);
 								break; // !!! Field that send to user UserProfile !!!
 							case "Убарть себя из списка📌":
+								await ModesHandlers.DeleteUser(bot, update, db);
 								break; // !!! Field that delete all data about user from DB !!!
 							case "Выбор кандидата🪩":
 								await ModesHandlers.PartnerShowcaseMenu(bot, update, db);
