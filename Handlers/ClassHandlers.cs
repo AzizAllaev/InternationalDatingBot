@@ -40,7 +40,6 @@ namespace Handlers
 
 				if (update?.Message?.From != null)
 				{
-					
 					string? text = TelegramBotUtilities.ReturnNewMessage(update);
 					if (text != null)
 					{
@@ -94,9 +93,11 @@ namespace Handlers
 
 							// Respond on partner showcase buttons
 							case "Поиск пары🎆":
+								await ModesHandlers.ChangeModeStatus(update, db, 4);
 								await ModesHandlers.FindPair(bot, update, db);
 								break;
 							case "Просмотреть приглашения👀":
+								await ModesHandlers.ChangeModeStatus(update, db, 3);
 								await ModesHandlers.ViewLikes(bot, update, db);
 								break;
 							case "👍":
@@ -109,6 +110,10 @@ namespace Handlers
 							//	await ModesHandlers.HandleReverse(bot, update, db);
 							//	break;
 
+						}
+						if(await ModesHandlers.ReturnModeStatus(update, db) == 3)
+						{
+							await ModesHandlers.MatchUser(bot, update, db);
 						}
 					}
 				}

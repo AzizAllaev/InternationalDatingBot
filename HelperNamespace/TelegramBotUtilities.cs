@@ -44,6 +44,17 @@ namespace HelperNamespace
 						$"ФИ профиля: {targetuser.Name} {targetuser.LastName}\n";
 			return text;
 		}
+		public static async Task<string?> ReturnTargetProfileTextWithId(UserProfile targetuser, AppDbContext db)
+		{
+			var group = await db.Groups.FirstOrDefaultAsync(g => g.Id == targetuser.GroupID);
+			if (group == null)
+				return null;
+
+			string text = $"Группа: {group.Name}\n" +
+						$"ФИ профиля: {targetuser.Name} {targetuser.LastName}\n" +
+						$"Id: {targetuser.Id}";
+			return text;
+		}
 		public static string StartRegirstrationText()
 		{
 			string text = "Начать заполнение профиля";

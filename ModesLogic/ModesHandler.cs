@@ -123,20 +123,21 @@ namespace ModesLogic
 			var baseuser = await GetBaseuser(bot, update, db);
 			var targetuser = await GetTargetuser(bot, update, db);
 			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+			if (baseuser == null)
+				return;
+
 			if (target == null)
 			{
 				if (!await db.TargetPartnerServices.AnyAsync(t => t.TelegramID == update.Message.From.Id))
 				{
 					await db.TargetPartnerServices.AddAsync(new TargetPartnerService { TelegramID = update.Message.From.Id, LastUserId = 0 });
 					await db.SaveChangesAsync();
-					await FindPair(bot, update, db);
+					await bot.SendMessage(baseuser.TelegramID, "Попроубйте ещё раз");
 					return;
 				}
 				return;
 			}
-			if (baseuser == null)
-				return;
-
+			
 			if(targetuser == null)
 			{
 
@@ -144,7 +145,7 @@ namespace ModesLogic
 				{
 					target.LastUserId = 0;
 					await db.SaveChangesAsync();
-					await FindPair(bot, update, db);
+					await bot.SendMessage(baseuser.TelegramID, "Вы пролистали всех пользователей");
 				}
 				else
 				{
@@ -162,18 +163,43 @@ namespace ModesLogic
 
 		public static async Task SendTargetUserProfile(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser, TargetPartnerService target)
 		{
+			if (update?.Message?.From == null)
+				return;
+
 			if (targetuser.PhotoId == null || targetuser.Name == null || targetuser.GroupID == null || targetuser.LastName == null || targetuser.Username == null)
 			{
 				target.LastUserId = targetuser.Id;
 				await db.SaveChangesAsync();
 				await bot.SendMessage(targetuser.TelegramID, "К сожалению пользователи не видят вашего профиля, так как у вас отсутсвует юзер либо не заполнен профиль");
-				await FindPair(bot, update, db);
+				await bot.SendMessage(update.Message.From.Id, "Попробуйте ещё раз");
 				return;
 			}
 			Console.WriteLine($"Target: {targetuser.Name} || {targetuser.Username}");
 			await bot.SendPhoto(
 				chatId: update.Message.Chat.Id,
 				caption: await TelegramBotUtilities.ReturnTargetProfileText(targetuser, db),
+				replyMarkup: Keyboards.LikeDislikeButtons(),
+				photo: targetuser.PhotoId
+				);
+		}
+
+		public static async Task SendTargetUserProfileWithId(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser, TargetPartnerService target)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			if (targetuser.PhotoId == null || targetuser.Name == null || targetuser.GroupID == null || targetuser.LastName == null || targetuser.Username == null)
+			{
+				target.LastUserId = targetuser.Id;
+				await db.SaveChangesAsync();
+				await bot.SendMessage(targetuser.TelegramID, "К сожалению пользователи не видят вашего профиля, так как у вас отсутсвует юзер либо не заполнен профиль");
+				await bot.SendMessage(update.Message.From.Id, "Попробуйте ещё раз");
+				return;
+			}
+			Console.WriteLine($"Target: {targetuser.Name} || {targetuser.Username}");
+			await bot.SendPhoto(
+				chatId: update.Message.Chat.Id,
+				caption: await TelegramBotUtilities.ReturnTargetProfileTextWithId(targetuser, db),
 				replyMarkup: Keyboards.LikeDislikeButtons(),
 				photo: targetuser.PhotoId
 				);
@@ -259,6 +285,63 @@ namespace ModesLogic
 		{
 			await FindPair(bot, update, db);
 		}
+
+		public static async Task MatchUser(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			var baseuser = await db.Users.FirstOrDefaultAsync(u => u.TelegramID == update.Message.From.Id);
+			string? MatchId = TelegramBotUtilities.ReturnNewMessage(update);
+			int? targetuserId = Convert.ToInt32(MatchId);
+			if (targetuserId == null || baseuser == null)
+				return;
+
+			var targetuser = await db.Users.FirstOrDefaultAsync(u => u.Id == targetuserId);
+			if (targetuser == null) 
+				return;
+
+			if (baseuser.Gender == "Female")
+			{
+				if(await db.Likes.AnyAsync(l => l.FemaleId == baseuser.Id && l.MaleId == targetuserId))
+				{
+					await bot.SendMessage(baseuser.TelegramID, $"У вас взаимный лайк с @{targetuser.Username}");
+					await bot.SendMessage(targetuser.TelegramID, $"У вас взаимный лайк с @{baseuser.Username}");
+
+					var like = await db.Likes.FirstOrDefaultAsync(l => l.FemaleId == baseuser.Id && l.MaleId == targetuser.Id);
+					if (like == null)
+						return;
+					db.Likes.Remove(like);
+					await db.SaveChangesAsync();
+				}
+				else
+				{
+					await bot.SendMessage(baseuser.TelegramID, "Неправильный ID");
+				}
+			}
+			else if(baseuser.Gender == "Male")
+			{
+				if(await db.Likes.AnyAsync(l => l.MaleId == baseuser.Id && l.FemaleId == targetuserId))
+				{
+					await bot.SendMessage(baseuser.TelegramID, $"У вас взаимный лайк с @{targetuser.Username}");
+					await bot.SendMessage(targetuser.TelegramID, $"У вас взаимный лайк с @{baseuser.Username}");
+
+					var like = await db.Likes.FirstOrDefaultAsync(l => l.FemaleId == targetuser.Id && l.MaleId == baseuser.Id);
+					if (like == null)
+						return;
+					db.Likes.Remove(like);
+					await db.SaveChangesAsync();
+				}
+				else
+				{
+					await bot.SendMessage(baseuser.TelegramID, "Неправильный ID");	
+				}
+			}
+			else
+			{
+				return;
+			}
+		}
 		#endregion
 
 		#region View all likes
@@ -304,14 +387,16 @@ namespace ModesLogic
 				.ToListAsync();
 
 			var sb = new System.Text.StringBuilder();
+			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
+			if (target == null)
+				return;
 
 			foreach (var user in users)
 			{
 				var groupName = user.group?.Name ?? "Без группы";
-				sb.AppendLine($"ID: {user.Id} \n ФИ: {user.Name} {user.LastName} \n Группа: {groupName} \n Юзер: @{user.Username}");
+				await SendTargetUserProfileWithId(bot, update, db, user, target);
 			}
-
-			await bot.SendMessage(baseuser.TelegramID, sb.ToString());
+			await bot.SendMessage(baseuser.TelegramID, "Впишите Id пользователя приглашение которого вы принимаете.");
 		}
 		#endregion
 
@@ -636,6 +721,17 @@ namespace ModesLogic
 			userModeStatus.ModeStatus = status;
 			await db.SaveChangesAsync();
 		}
+		public static async Task<int?> ReturnModeStatus(Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update.Message?.From == null)
+				return null;
+
+			var status = await db.ModeServices.FirstOrDefaultAsync(s => s.TelegramId == update.Message.From.Id);
+			if (status == null)
+				return null;
+			
+			return status.ModeStatus;
+		}
 		private static async Task UsernameController(Telegram.Bot.Types.Update update, AppDbContext db, ITelegramBotClient bot, UserProfile user)
 		{
 			if (update?.Message?.From == null)
@@ -654,14 +750,6 @@ namespace ModesLogic
 					break;
 			}
 		}
-
-		//public static async Task<int> ReturnModeStatus(Telegram.Bot.Types.Update update, AppDbContext db, int status)
-		//{
-		//	if (update?.Message?.From == null)
-		//		return 0;
-
-		//	var status = await db.ModeServices.FirstOrDefaultAsync(s => 
-		//}
 		#endregion
 	}
 }
