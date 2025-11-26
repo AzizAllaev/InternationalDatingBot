@@ -1,4 +1,7 @@
 ﻿using HelperNamespace;
+using HelperNamespce;
+using Microsoft.EntityFrameworkCore;
+using Models;
 using ModesLogic;
 using System;
 using System.Collections.Generic;
@@ -9,8 +12,6 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using Models;
-using Microsoft.EntityFrameworkCore;
 
 
 
@@ -45,8 +46,17 @@ namespace Handlers
 					{
 						switch (text)
 						{
-							// Respond on main buttons of modes
+							
+
 							case "/start":
+								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
+								break;
+
+							// Respond on main buttons of modes
+							case "Оставить заявку🪧":
+								await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
+								break;
+							case "Дополнительные функции✅":
 								if (!await ModesHandlers.CheckStatus(update, db))
 								{
 									await ModesHandlers.StartUserRegistration(bot, update, clt, db);
@@ -106,10 +116,6 @@ namespace Handlers
 							case "👎":
 								await ModesHandlers.HandleDislike(bot, update, db);
 								break;
-							//case "Отмотать⬆️":
-							//	await ModesHandlers.HandleReverse(bot, update, db);
-							//	break;
-
 						}
 						if(await ModesHandlers.ReturnModeStatus(update, db) == 3)
 						{

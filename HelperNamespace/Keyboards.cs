@@ -124,8 +124,19 @@ namespace HelperNamespce
 			return new ReplyKeyboardMarkup(new[]
 			{
 				new KeyboardButton[]{ "👍", "👎" },
-				new KeyboardButton[]{ "Отмотать⬆️" },
 				new KeyboardButton[]{ "Вернуться назад"}
+			})
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
+		public static ReplyKeyboardMarkup MainOptions()
+		{
+			return new ReplyKeyboardMarkup(new[]
+			{
+				new KeyboardButton[]{ "Оставить заявку🪧" },
+				new KeyboardButton[]{ "Допольнительный функции✅" }
 			})
 			{
 				ResizeKeyboard = true,
