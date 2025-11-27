@@ -170,8 +170,7 @@ namespace ModesLogic
 			{
 				target.LastUserId = targetuser.Id;
 				await db.SaveChangesAsync();
-				await bot.SendMessage(targetuser.TelegramID, "К сожалению пользователи не видят вашего профиля, так как у вас отсутсвует юзер либо не заполнен профиль");
-				await bot.SendMessage(update.Message.From.Id, "Попробуйте ещё раз");
+				await bot.SendMessage(update.Message.From.Id, "Вы наткнулись на пользователя который не заполнил профиль или не имеет юзера, продолжайте скролить");
 				return;
 			}
 			Console.WriteLine($"Target: {targetuser.Name} || {targetuser.Username}");
@@ -183,18 +182,17 @@ namespace ModesLogic
 				);
 		}
 
-		public static async Task SendTargetUserProfileWithId(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser, TargetPartnerService target)
+		public static async Task<bool> SendTargetUserProfileWithId(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser, TargetPartnerService target)
 		{
 			if (update?.Message?.From == null)
-				return;
+				return false;
 
 			if (targetuser.PhotoId == null || targetuser.Name == null || targetuser.GroupID == null || targetuser.LastName == null || targetuser.Username == null)
 			{
 				target.LastUserId = targetuser.Id;
 				await db.SaveChangesAsync();
-				await bot.SendMessage(targetuser.TelegramID, "К сожалению пользователи не видят вашего профиля, так как у вас отсутсвует юзер либо не заполнен профиль");
-				await bot.SendMessage(update.Message.From.Id, "Попробуйте ещё раз");
-				return;
+				await bot.SendMessage(update.Message.From.Id, "Вы наткнулись на пользователя который не заполнил профиль или не имеет юзера, продолжайте скролить");
+				return false;
 			}
 			Console.WriteLine($"Target: {targetuser.Name} || {targetuser.Username}");
 			await bot.SendPhoto(
@@ -203,6 +201,7 @@ namespace ModesLogic
 				replyMarkup: Keyboards.LikeDislikeButtons(),
 				photo: targetuser.PhotoId
 				);
+			return true;
 		}
 		#endregion
 
@@ -390,11 +389,12 @@ namespace ModesLogic
 			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
 			if (target == null)
 				return;
-			Console.WriteLine("test");
 			foreach (var user in users)
 			{
 				var groupName = user.group?.Name ?? "Без группы";
-				await SendTargetUserProfileWithId(bot, update, db, user, target);
+				bool returnstatus = await SendTargetUserProfileWithId(bot, update, db, user, target);
+				if (!returnstatus)
+					return;
 			}
 			await bot.SendMessage(baseuser.TelegramID, "Впишите Id пользователя приглашение которого вы принимаете.");
 		}

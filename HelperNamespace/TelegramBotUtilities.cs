@@ -31,7 +31,9 @@ namespace HelperNamespace
 
 			string text = $"Имя пользователя: {update.Message.From.Username}\n" +
 						$"Группа: {group.Name}\n" +
-						$"ФИ профиля: {user.Name} {user.LastName}\n";
+						$"ФИ профиля: {user.Name} {user.LastName}\n" +
+						$"" +
+						$"!!!  Предупреждение, Если у вас нету юзера вы не будете отображаться другим пользователям. Если вы поменяли юзер то зайдите и проверьте его тут, изменился ли он. Иначе в случае взаимного лайка ваш юзер будет отображаться не корректно !!!";
 			return text;
 		}
 		public static async Task<string?> ReturnTargetProfileText(UserProfile targetuser, AppDbContext db)

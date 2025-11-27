@@ -117,7 +117,7 @@ namespace Handlers
 								await ModesHandlers.HandleDislike(bot, update, db);
 								break;
 						}
-						if(await ModesHandlers.ReturnModeStatus(update, db) == 3)
+						if(await ModesHandlers.ReturnModeStatus(update, db) == 3 && text != "Кто меня лайкнул⁉️")
 						{
 							await ModesHandlers.MatchUser(bot, update, db);
 						}
