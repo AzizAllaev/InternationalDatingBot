@@ -52,6 +52,38 @@ namespace Models.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Applications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    MaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MaleGroupId = table.Column<int>(type: "int", nullable: true),
+                    mgroupId = table.Column<int>(type: "int", nullable: true),
+                    MalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FemaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FemaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FemaleGroupId = table.Column<int>(type: "int", nullable: true),
+                    fgroupId = table.Column<int>(type: "int", nullable: true),
+                    FemalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Applications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Applications_Groups_fgroupId",
+                        column: x => x.fgroupId,
+                        principalTable: "Groups",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Applications_Groups_mgroupId",
+                        column: x => x.mgroupId,
+                        principalTable: "Groups",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -122,6 +154,16 @@ namespace Models.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Applications_fgroupId",
+                table: "Applications",
+                column: "fgroupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Applications_mgroupId",
+                table: "Applications",
+                column: "mgroupId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Likes_FemaleId",
                 table: "Likes",
                 column: "FemaleId");
@@ -145,6 +187,9 @@ namespace Models.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Applications");
+
             migrationBuilder.DropTable(
                 name: "Likes");
 

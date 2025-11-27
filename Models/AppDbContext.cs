@@ -26,6 +26,7 @@ namespace Models
 		public DbSet<UserRegistrationService> RegistrationStatuses { get; set; }
 		public DbSet<ModeService> ModeServices { get; set; }
 		public DbSet<TargetPartnerService> TargetPartnerServices { get; set; }
+		public DbSet<Application> Applications { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{

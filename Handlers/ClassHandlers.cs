@@ -51,6 +51,7 @@ namespace Handlers
 
 							// Respond on main buttons of modes
 							case "Оставить заявку🪧":
+
 								await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
 								break;
 							case "Дополнительные функции":

@@ -19,6 +19,7 @@ namespace ModesLogic
 {
 	public class RespondHandlers
 	{
+		#region Profile respond methods
 		public static async Task WhenCallBackquery(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
 		{
 			if (update?.CallbackQuery?.Data == null)
@@ -82,5 +83,17 @@ namespace ModesLogic
 				}
 			} 
 		}
+		#endregion
+
+		#region Application respond methods
+		public static async Task WhenDataOfMale(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return;
+			long userId = update.Message.From.Id;
+
+			await bot.SendMessage(userId, TelegramBotUtilities.ReturnMDataText());
+		}
+		#endregion
 	}
 }

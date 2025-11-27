@@ -11,7 +11,7 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251115111423_MigrationName")]
+    [Migration("20251127165807_MigrationName")]
     partial class MigrationName
     {
         /// <inheritdoc />
@@ -23,6 +23,53 @@ namespace Models.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Models.Application", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FemaleFullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("FemaleGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FemaleLyceumName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FemalePurpose")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MaleFullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MaleGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MaleLyceumName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MalePurpose")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("fgroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("mgroupId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("fgroupId");
+
+                    b.HasIndex("mgroupId");
+
+                    b.ToTable("Applications");
+                });
 
             modelBuilder.Entity("Models.Group", b =>
                 {
@@ -165,6 +212,21 @@ namespace Models.Migrations
                     b.HasIndex("userId");
 
                     b.ToTable("RegistrationStatuses");
+                });
+
+            modelBuilder.Entity("Models.Application", b =>
+                {
+                    b.HasOne("Models.Group", "fgroup")
+                        .WithMany()
+                        .HasForeignKey("fgroupId");
+
+                    b.HasOne("Models.Group", "mgroup")
+                        .WithMany()
+                        .HasForeignKey("mgroupId");
+
+                    b.Navigation("fgroup");
+
+                    b.Navigation("mgroup");
                 });
 
             modelBuilder.Entity("Models.Like", b =>
