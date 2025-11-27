@@ -145,7 +145,7 @@ namespace ModesLogic
 				{
 					target.LastUserId = 0;
 					await db.SaveChangesAsync();
-					await bot.SendMessage(baseuser.TelegramID, "Вы пролистали всех пользователей");
+					await bot.SendMessage(baseuser.TelegramID, "Вы пролистали всех пользователей, чтобы начать сначала попробуйте ещё раз");
 				}
 				else
 				{
