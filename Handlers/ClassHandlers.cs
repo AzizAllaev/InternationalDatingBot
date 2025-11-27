@@ -81,6 +81,7 @@ namespace Handlers
 							case "Назад🔙":
 								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
 								break;
+
 							// Respond on service buttons
 							case "Данные анкеты👁️":
 								await ModesHandlers.ChangeModeStatus(update, db, 1);
