@@ -16,7 +16,8 @@ namespace HelperNamespce
 			{
 				new KeyboardButton[]{ "Анкета👤" },
 				new KeyboardButton[]{ "Выбор кандидата🪩" },
-				new KeyboardButton[]{ "Убарть себя из списка📌" }
+				new KeyboardButton[]{ "Убарть себя из списка📌" },
+				new KeyboardButton[] { "Назад🔙" }
 			})
 			{
 				ResizeKeyboard = true,
@@ -111,7 +112,7 @@ namespace HelperNamespce
 			return new ReplyKeyboardMarkup(new[]
 			{
 				new KeyboardButton[]{ "Поиск пары🎆" },
-				new KeyboardButton[]{ "Просмотреть приглашения👀" },
+				new KeyboardButton[]{ "Кто меня лайкнул⁉️" },
 				new KeyboardButton[]{ "Вернуться назад" }
 			})
 			{
@@ -136,7 +137,7 @@ namespace HelperNamespce
 			return new ReplyKeyboardMarkup(new[]
 			{
 				new KeyboardButton[]{ "Оставить заявку🪧" },
-				new KeyboardButton[]{ "Допольнительный функции✅" }
+				new KeyboardButton[]{ "Дополнительные функции" }
 			})
 			{
 				ResizeKeyboard = true,

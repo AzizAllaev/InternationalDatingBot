@@ -38,7 +38,6 @@ namespace Handlers
 					await ModesLogic.RespondHandlers.WhenPhotoForProfile(bot, update);
 				}
 
-
 				if (update?.Message?.From != null)
 				{
 					string? text = TelegramBotUtilities.ReturnNewMessage(update);
@@ -46,8 +45,6 @@ namespace Handlers
 					{
 						switch (text)
 						{
-							
-
 							case "/start":
 								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
 								break;
@@ -56,7 +53,7 @@ namespace Handlers
 							case "Оставить заявку🪧":
 								await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
 								break;
-							case "Дополнительные функции✅":
+							case "Дополнительные функции":
 								if (!await ModesHandlers.CheckStatus(update, db))
 								{
 									await ModesHandlers.StartUserRegistration(bot, update, clt, db);
@@ -71,21 +68,23 @@ namespace Handlers
 								}
 								break;
 							case "Анкета👤":
-								await ModesHandlers.ProfileMode(bot, update, clt, db);
 								await ModesHandlers.ChangeModeStatus(update, db, 1);
+								await ModesHandlers.ProfileMode(bot, update, clt, db);
 								break; // !!! Field that send to user UserProfile !!!
 							case "Убарть себя из списка📌":
 								await ModesHandlers.DeleteUser(bot, update, db);
 								break; // !!! Field that delete all data about user from DB !!!
 							case "Выбор кандидата🪩":
-								await ModesHandlers.PartnerShowcaseMenu(bot, update, db);
 								await ModesHandlers.ChangeModeStatus(update, db, 2);
+								await ModesHandlers.PartnerShowcaseMenu(bot, update, db);
 								break; // !!! Field that start partner showcase !!!
-
+							case "Назад🔙":
+								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
+								break;
 							// Respond on service buttons
 							case "Данные анкеты👁️":
-								await ModesHandlers.TakeData(bot, update, clt, db);// <<--- This methods start registration
 								await ModesHandlers.ChangeModeStatus(update, db, 1);
+								await ModesHandlers.TakeData(bot, update, clt, db);// <<--- This methods start registration
 								break; // <<-- Start of user profile registration
 							case "Подтверждаю✅":
 								await ModesHandlers.TakeData(bot, update, clt, db);
@@ -106,7 +105,7 @@ namespace Handlers
 								await ModesHandlers.ChangeModeStatus(update, db, 4);
 								await ModesHandlers.FindPair(bot, update, db);
 								break;
-							case "Просмотреть приглашения👀":
+							case "Кто меня лайкнул⁉️":
 								await ModesHandlers.ChangeModeStatus(update, db, 3);
 								await ModesHandlers.ViewLikes(bot, update, db);
 								break;

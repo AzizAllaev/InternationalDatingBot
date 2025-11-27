@@ -353,7 +353,7 @@ namespace ModesLogic
 			var baseuser = await GetBaseuser(bot, update, db);
 			if (baseuser == null)
 				return;
-
+			
 			List<int> ?userIds;
 
 			if (baseuser.Gender == "Male")
@@ -374,7 +374,7 @@ namespace ModesLogic
 			{
 				userIds = null;
 			}
-
+			
 			if (userIds == null || userIds.Count == 0)
 			{
 				await bot.SendMessage(baseuser.TelegramID, "Пока никто не лайкал ваш профиль.");
@@ -390,7 +390,7 @@ namespace ModesLogic
 			var target = await db.TargetPartnerServices.FirstOrDefaultAsync(t => t.TelegramID == update.Message.From.Id);
 			if (target == null)
 				return;
-
+			Console.WriteLine("test");
 			foreach (var user in users)
 			{
 				var groupName = user.group?.Name ?? "Без группы";
