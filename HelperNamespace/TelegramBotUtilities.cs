@@ -67,14 +67,20 @@ namespace HelperNamespace
 			string text = "Выберите вашу группу: ";
 			return text;
 		}
+
 		public static string ReturnMDataText()
 		{
 			string text;
-			text = "Укажите своё ФИО и группу в таком виде:" +
+			text = "Укажите своё ФИО и группу в таком виде:\n" +
 				"<b>Фамилия Имя Отчество Группа</b>";
 			return text;
 		}
-		//public static string StudentsWarning
+		public static string StudentsWarning()
+		{
+			string text = "⚠️Убедительная просьба, старайтесь вводить данные правильно. Перед отправкой проверьте и перечитайте заявку и после этого отправляйте её⚠️";
+
+			return text;
+		}
 		#endregion
 
 		#region User handler methods

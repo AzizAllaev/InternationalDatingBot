@@ -62,6 +62,9 @@ namespace Models.Migrations
                     b.Property<string>("MaleTelegramUser")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long>("TelegramID")
+                        .HasColumnType("bigint");
+
                     b.Property<int?>("fgroupId")
                         .HasColumnType("int");
 
@@ -204,7 +207,7 @@ namespace Models.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AppStatus")
+                    b.Property<int>("AppStatus")
                         .HasColumnType("int");
 
                     b.Property<long>("TelegramId")

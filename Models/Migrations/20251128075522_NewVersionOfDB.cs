@@ -5,7 +5,7 @@
 namespace Models.Migrations
 {
     /// <inheritdoc />
-    public partial class MigrationName : Migration
+    public partial class NewVersionOfDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -57,12 +57,16 @@ namespace Models.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    TelegramID = table.Column<long>(type: "bigint", nullable: false),
                     MaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MalePhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MaleTelegramUser = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MaleGroupId = table.Column<int>(type: "int", nullable: true),
                     mgroupId = table.Column<int>(type: "int", nullable: true),
                     MalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FemaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FemaleTelegramUser = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FemaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FemaleGroupId = table.Column<int>(type: "int", nullable: true),
                     fgroupId = table.Column<int>(type: "int", nullable: true),
@@ -141,7 +145,8 @@ namespace Models.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TelegramId = table.Column<long>(type: "bigint", nullable: false),
                     userId = table.Column<int>(type: "int", nullable: true),
-                    UserRegStatus = table.Column<int>(type: "int", nullable: true)
+                    UserRegStatus = table.Column<int>(type: "int", nullable: true),
+                    AppStatus = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

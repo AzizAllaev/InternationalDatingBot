@@ -11,8 +11,8 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251127165807_MigrationName")]
-    partial class MigrationName
+    [Migration("20251128075522_NewVersionOfDB")]
+    partial class NewVersionOfDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,6 +44,9 @@ namespace Models.Migrations
                     b.Property<string>("FemalePurpose")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("FemaleTelegramUser")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MaleFullName")
                         .HasColumnType("nvarchar(max)");
 
@@ -53,8 +56,17 @@ namespace Models.Migrations
                     b.Property<string>("MaleLyceumName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("MalePhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MalePurpose")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MaleTelegramUser")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TelegramID")
+                        .HasColumnType("bigint");
 
                     b.Property<int?>("fgroupId")
                         .HasColumnType("int");
@@ -197,6 +209,9 @@ namespace Models.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppStatus")
+                        .HasColumnType("int");
 
                     b.Property<long>("TelegramId")
                         .HasColumnType("bigint");

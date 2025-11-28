@@ -92,7 +92,14 @@ namespace ModesLogic
 				return;
 			long userId = update.Message.From.Id;
 
-			await bot.SendMessage(userId, TelegramBotUtilities.ReturnMDataText());
+			var userRegStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == userId);
+			if (userRegStat == null)
+				return;
+
+			if(userRegStat.AppStatus == 1)
+			{
+				Console.WriteLine($"{update.Message.Text}");
+			}
 		}
 		#endregion
 	}

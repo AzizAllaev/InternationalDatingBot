@@ -24,7 +24,8 @@ namespace Handlers
 			try
 			{
 				using AppDbContext db = new AppDbContext();
-				//Case if user press buttons or answer to messages from bot
+
+				#region Profile registration field
 				if (update.CallbackQuery != null && update.CallbackQuery.Data != null)
 				{
 					await ModesLogic.RespondHandlers.WhenCallBackquery(bot, update);
@@ -37,6 +38,7 @@ namespace Handlers
 				{
 					await ModesLogic.RespondHandlers.WhenPhotoForProfile(bot, update);
 				}
+				#endregion
 
 				if (update?.Message?.From != null)
 				{
@@ -51,8 +53,14 @@ namespace Handlers
 
 							// Respond on main buttons of modes
 							case "Оставить заявку🪧":
-
-								await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
+								//await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
+								await bot.SendMessage(update.Message.From.Id, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
+								break;
+							case "Я прочитал":
+								await ApplicationsHandler.TakeApplication(bot, update, db);
+								break;
+							case "Подтверждаю☑️":
+								await ApplicationsHandler.TakeApplication(bot, update, db);
 								break;
 							case "Дополнительные функции":
 								if (!await ModesHandlers.CheckStatus(update, db))
@@ -118,10 +126,22 @@ namespace Handlers
 								await ModesHandlers.HandleDislike(bot, update, db);
 								break;
 						}
+
 						if(await ModesHandlers.ReturnModeStatus(update, db) == 3 && text != "Кто меня лайкнул⁉️")
 						{
 							await ModesHandlers.MatchUser(bot, update, db);
 						}
+
+						#region Application methods
+						var regStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == update.Message.From.Id);
+						if (regStat != null)
+						{
+							if(regStat.AppStatus < 3)
+							{
+								await RespondHandlers.WhenDataOfMale(bot, update, db);
+							}
+						}
+						#endregion
 					}
 				}
 			}

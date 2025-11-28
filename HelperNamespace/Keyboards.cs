@@ -48,29 +48,29 @@ namespace HelperNamespce
 		}
 		public static InlineKeyboardMarkup TakeGenderKeyboard()
 		{
-            return new InlineKeyboardMarkup(new[]
-            {
-                new[]
-                {
-                    InlineKeyboardButton.WithCallbackData("Парень", "Male"),
-                    InlineKeyboardButton.WithCallbackData("Девушка", "Female")
-                }
-            });
-        }
-        public static InlineKeyboardMarkup TakeGroupKeyboard(List<Group> groups)
-        {
+			return new InlineKeyboardMarkup(new[]
+			{
+				new[]
+				{
+					InlineKeyboardButton.WithCallbackData("Парень", "Male"),
+					InlineKeyboardButton.WithCallbackData("Девушка", "Female")
+				}
+			});
+		}
+		public static InlineKeyboardMarkup TakeGroupKeyboard(List<Group> groups)
+		{
 			var buttons = new List<List<InlineKeyboardButton>>();
 
-			foreach(var group in groups)
+			foreach (var group in groups)
 			{
-				if(group != null && group.Name != null) 
-				buttons.Add(new List<InlineKeyboardButton>
+				if (group != null && group.Name != null)
+					buttons.Add(new List<InlineKeyboardButton>
 				{
-					InlineKeyboardButton.WithCallbackData(group.Name, $"{group.Name}") 
+					InlineKeyboardButton.WithCallbackData(group.Name, $"{group.Name}")
 				});
 			}
 			return new InlineKeyboardMarkup(buttons);
-        }
+		}
 		public static ReplyKeyboardMarkup ReturnFromProfile()
 		{
 			return new ReplyKeyboardMarkup(new[]
@@ -138,6 +138,28 @@ namespace HelperNamespce
 			{
 				new KeyboardButton[]{ "Оставить заявку🪧" },
 				new KeyboardButton[]{ "Дополнительные функции" }
+			})
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
+		public static ReplyKeyboardMarkup ConfirmButton()
+		{
+			return new ReplyKeyboardMarkup(new[]
+			{
+				new KeyboardButton[]{ "Я прочитал" }
+			})
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
+		public static ReplyKeyboardMarkup ContinueApplicationSend()
+		{
+			return new ReplyKeyboardMarkup(new[]
+			{
+				new KeyboardButton[]{ "Подтверждаю☑️" },
 			})
 			{
 				ResizeKeyboard = true,

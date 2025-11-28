@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using HelperNamespace;
+using HelperNamespce;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -17,10 +19,8 @@ namespace ModesLogic
 				return;
 
 			long userId = update.Message.From.Id;
-			
-			await bot.SendMessage(userId, "⚠️Убедительная просьба, старайтесь вводить данные правильно. Перед отправкой проверьте и перечитайте заявку и после этого отправляйте её.⚠️");
 
-
+			await bot.SendMessage(userId, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
 		}
 
 		public static async Task TakeApplication(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
@@ -30,9 +30,9 @@ namespace ModesLogic
 
 			long userId = update.Message.From.Id;
 
-			if(!await db.RegistrationStatuses.AnyAsync(reg => reg.TelegramId == userId))
+			if (!await db.RegistrationStatuses.AnyAsync(reg => reg.TelegramId == userId))
 			{
-				await db.RegistrationStatuses.AddAsync(new UserRegistrationService { TelegramId = userId });
+				await db.RegistrationStatuses.AddAsync(new UserRegistrationService { TelegramId = userId, AppStatus = 0 });
 				await db.SaveChangesAsync();
 			}
 
@@ -40,18 +40,31 @@ namespace ModesLogic
 			if (regStat == null)
 				return;
 
-			switch(regStat.AppStatus)
+			switch (regStat.AppStatus)
 			{
 				case 0:
-
+					await TakeMaleFullName(bot, update, db);
 					break;
 				case 1:
+
 					break;
 				case 2:
 					break;
 				case 3:
 					break;
 			}
+		}
+
+		public static async Task TakeMaleFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+
+			await db.SaveChangesAsync();
+
+			await bot.SendMessage(userId, TelegramBotUtilities.ReturnMDataText(), replyMarkup: Keyboards.ContinueApplicationSend(), parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 		}
 	}
 }
