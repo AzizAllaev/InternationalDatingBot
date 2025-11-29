@@ -71,7 +71,22 @@ namespace HelperNamespace
 		public static string ReturnMDataText()
 		{
 			string text;
-			text = "Укажите своё ФИО и группу в таком виде:\n" +
+			text = "Укажите ФИО парня и группу, в таком виде:\n" +
+				"<b>Фамилия Имя Отчество Группа</b>";
+			return text;
+		}
+		public static string ReturnPhoneNumberText()
+		{
+			string text = "Введите номер телефона парня в таком виде: \n" +
+				"<b>+998 XX XXX XX XX</b>";
+
+			return text;
+		}
+
+		public static string ReturnFDataText()
+		{
+			string text;
+			text = "Укажите ФИО девушки и группу в таком виде:\n" +
 				"<b>Фамилия Имя Отчество Группа</b>";
 			return text;
 		}
@@ -79,6 +94,13 @@ namespace HelperNamespace
 		{
 			string text = "⚠️Убедительная просьба, старайтесь вводить данные правильно. Перед отправкой проверьте и перечитайте заявку и после этого отправляйте её⚠️";
 
+			return text;
+		}
+
+		public static string ReturnFullNameConfirmationText(string data)
+		{
+			string text = $"Подтвердите ФИО: \n" +
+				$"<b>{data}</b>";
 			return text;
 		}
 		#endregion

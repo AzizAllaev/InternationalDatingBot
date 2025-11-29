@@ -86,19 +86,20 @@ namespace ModesLogic
 		#endregion
 
 		#region Application respond methods
-		public static async Task WhenDataOfMale(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		public static async Task WhenDataOfMale(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userRegStat)
 		{
 			if (update?.Message?.From == null)
 				return;
 			long userId = update.Message.From.Id;
-
-			var userRegStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == userId);
 			if (userRegStat == null)
 				return;
-
-			if(userRegStat.AppStatus == 1)
+			switch (userRegStat.AppStatus)
 			{
-				Console.WriteLine($"{update.Message.Text}");
+				case 0:
+					await ApplicationsHandler.AnswerOnFullName(bot, update, db, userRegStat);
+					break;
+				case 1:
+					break;
 			}
 		}
 		#endregion

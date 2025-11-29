@@ -24,7 +24,6 @@ namespace Handlers
 			try
 			{
 				using AppDbContext db = new AppDbContext();
-
 				#region Profile registration field
 				if (update.CallbackQuery != null && update.CallbackQuery.Data != null)
 				{
@@ -39,7 +38,6 @@ namespace Handlers
 					await ModesLogic.RespondHandlers.WhenPhotoForProfile(bot, update);
 				}
 				#endregion
-
 				if (update?.Message?.From != null)
 				{
 					string? text = TelegramBotUtilities.ReturnNewMessage(update);
@@ -48,20 +46,23 @@ namespace Handlers
 						switch (text)
 						{
 							case "/start":
-								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
-								break;
-
-							// Respond on main buttons of modes
+								await ModesHandlers.ChangeModeStatus(update, db, 0);
+								await ModesHandlers.MainMenuMode(bot, update, clt);
+								return;
 							case "Оставить заявку🪧":
 								//await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
 								await bot.SendMessage(update.Message.From.Id, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
-								break;
+								return;
 							case "Я прочитал":
+								await ModesHandlers.ChangeModeStatus(update, db, 6);
 								await ApplicationsHandler.TakeApplication(bot, update, db);
-								break;
+								return;
 							case "Подтверждаю☑️":
 								await ApplicationsHandler.TakeApplication(bot, update, db);
-								break;
+								return;
+							case "Заново":
+								await ApplicationsHandler.Return(bot, update, db);
+								return;
 							case "Дополнительные функции":
 								if (!await ModesHandlers.CheckStatus(update, db))
 								{
@@ -75,59 +76,60 @@ namespace Handlers
 								{
 									throw new Exception("After /start user is not found");
 								}
-								break;
+								return;
+
 							case "Анкета👤":
 								await ModesHandlers.ChangeModeStatus(update, db, 1);
 								await ModesHandlers.ProfileMode(bot, update, clt, db);
-								break; // !!! Field that send to user UserProfile !!!
+								return; // !!! Field that send to user UserProfile !!!
 							case "Убарть себя из списка📌":
 								await ModesHandlers.DeleteUser(bot, update, db);
-								break; // !!! Field that delete all data about user from DB !!!
+								return; // !!! Field that delete all data about user from DB !!!
 							case "Выбор кандидата🪩":
 								await ModesHandlers.ChangeModeStatus(update, db, 2);
 								await ModesHandlers.PartnerShowcaseMenu(bot, update, db);
-								break; // !!! Field that start partner showcase !!!
+								return; // !!! Field that start partner showcase !!!
 							case "Назад🔙":
 								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
-								break;
+								return;
 
 							// Respond on service buttons
 							case "Данные анкеты👁️":
 								await ModesHandlers.ChangeModeStatus(update, db, 1);
 								await ModesHandlers.TakeData(bot, update, clt, db);// <<--- This methods start registration
-								break; // <<-- Start of user profile registration
+								return; // <<-- Start of user profile registration
 							case "Подтверждаю✅":
 								await ModesHandlers.TakeData(bot, update, clt, db);
-								break; // <<-- Confirmation of profile registration data that fill user
+								return; // <<-- Confirmation of profile registration data that fill user
 							case "Вернуться назад":
 								await ModesHandlers.MainMenuMode(bot, update, clt);
 								await ModesHandlers.ChangeModeStatus(update, db, 0);
-								break; // <<-- Back to main menu button
+								return; // <<-- Back to main menu button
 							case "Заполнить заново":
 								await ModesHandlers.StartUserRegistration(bot, update, clt, db);
-								break; // <<-- Field that also start user profile registration
+								return; // <<-- Field that also start user profile registration
 							case "Профиль не заполен полностью":
 								await ModesHandlers.TakeData(bot, update, clt, db);
-								break; // <<-- Notification that show that profile is not done 
+								return; // <<-- Notification that show that profile is not done 
 
 							// Respond on partner showcase buttons
 							case "Поиск пары🎆":
 								await ModesHandlers.ChangeModeStatus(update, db, 4);
 								await ModesHandlers.FindPair(bot, update, db);
-								break;
+								return;
 							case "Кто меня лайкнул⁉️":
 								await ModesHandlers.ChangeModeStatus(update, db, 3);
 								await ModesHandlers.ViewLikes(bot, update, db);
-								break;
+								return;
 							case "👍":
 								await ModesHandlers.HandleLike(bot, update, db);
-								break;
+								return;
 							case "👎":
 								await ModesHandlers.HandleDislike(bot, update, db);
-								break;
+								return;
 						}
-
-						if(await ModesHandlers.ReturnModeStatus(update, db) == 3 && text != "Кто меня лайкнул⁉️")
+						
+						if (await ModesHandlers.ReturnModeStatus(update, db) == 3 && text != "Кто меня лайкнул⁉️")
 						{
 							await ModesHandlers.MatchUser(bot, update, db);
 						}
@@ -136,9 +138,9 @@ namespace Handlers
 						var regStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == update.Message.From.Id);
 						if (regStat != null)
 						{
-							if(regStat.AppStatus < 3)
+							if(regStat.AppStatus < 3 && update.Message.Text != "Подтверждаю☑️" && await ModesHandlers.ReturnModeStatus(update, db) == 6)
 							{
-								await RespondHandlers.WhenDataOfMale(bot, update, db);
+								await RespondHandlers.WhenDataOfMale(bot, update, db, regStat);
 							}
 						}
 						#endregion

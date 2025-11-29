@@ -166,5 +166,17 @@ namespace HelperNamespce
 				OneTimeKeyboard = false
 			};
 		}
+		public static ReplyKeyboardMarkup ContinueOrReturnButton()
+		{
+			return new ReplyKeyboardMarkup(new[]
+			{
+				new KeyboardButton[]{ "Подтверждаю☑️" },
+				new KeyboardButton[]{ "Заново" }
+			})
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
 	}
 }
