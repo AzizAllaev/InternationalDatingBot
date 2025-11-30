@@ -143,10 +143,9 @@ namespace Handlers
 
 						if (regStat != null)
 						{
-
-
-							if (regStat.AppStatus < 3 && update.Message.Text != "Подтверждаю☑️" && await ModesHandlers.ReturnModeStatus(update, db) == 6)
+							if (regStat.AppStatus < 8 && update.Message.Text != "Подтверждаю☑️" && await ModesHandlers.ReturnModeStatus(update, db) == 6)
 							{
+								
 								await RespondHandlers.WhenDataOfMale(bot, update, db, regStat);
 							}
 						}

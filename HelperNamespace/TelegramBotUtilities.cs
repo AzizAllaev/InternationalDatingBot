@@ -112,8 +112,8 @@ namespace HelperNamespace
 		}
 		public static string ReturnPurposeConfirmText(string data)
 		{
-			string text = $"Подтвердите: " +
-				$"<i></i>";
+			string text = $"Подтвердите: \n" +
+				$"<i>{data}</i>";
 			return text;
 		}
 		#endregion

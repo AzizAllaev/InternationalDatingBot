@@ -93,6 +93,7 @@ namespace ModesLogic
 			long userId = update.Message.From.Id;
 			if (userRegStat == null)
 				return;
+			
 			switch (userRegStat.AppStatus)
 			{
 				case 0:
@@ -105,7 +106,7 @@ namespace ModesLogic
 					await ApplicationsHandler.AnswerOnMPhoneNubmer(bot, update, db, userRegStat);
 					return;
 				case 3:
-					
+					await ApplicationsHandler.AnswerOnMPurpose(bot, update, db, userRegStat);
 					return;
 			}
 		}

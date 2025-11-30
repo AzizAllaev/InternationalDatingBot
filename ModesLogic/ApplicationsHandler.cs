@@ -54,6 +54,7 @@ namespace ModesLogic
 					await TakeMalePhoneNumber(bot, update, db);
 					return;
 				case 3:
+					await TakePurpose(bot, update, db);
 					return;
 				case 4:
 					return;
@@ -219,7 +220,9 @@ namespace ModesLogic
 
 			await bot.SendMessage(
 				userId, 
-				
+				TelegramBotUtilities.ReturnPurposeConfirmText(data),
+				replyMarkup: Keyboards.ContinueOrReturnButton(),
+				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
 				);
 		}
 		#endregion
