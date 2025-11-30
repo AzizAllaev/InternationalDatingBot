@@ -99,7 +99,7 @@ namespace HelperNamespace
 
 		public static string ReturnFullNameConfirmationText(string data)
 		{
-			string text = $"Подтвердите ФИО: \n" +
+			string text = $"Подтвердите ФИО и группу: \n" +
 				$"<b>{data}</b>";
 			return text;
 		}

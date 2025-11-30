@@ -5,7 +5,7 @@
 namespace Models.Migrations
 {
     /// <inheritdoc />
-    public partial class NewVersionOfDB : Migration
+    public partial class MigrationName : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

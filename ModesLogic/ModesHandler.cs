@@ -245,7 +245,7 @@ namespace ModesLogic
 				{
 					await bot.SendMessage(baseuser.TelegramID, $"У вас взаимный лайк с @{targetuser.Username}");
 					await bot.SendMessage(targetuser.TelegramID, $"У вас взаимный лайк с @{baseuser.Username}");
-					await DeleteLike(bot, update, db, targetuser);
+					await DeleteLike(update, db, targetuser);
 				}
 			}
 			else if (baseuser.Gender == "Female")
@@ -260,11 +260,11 @@ namespace ModesLogic
 				{
 					await bot.SendMessage(baseuser.TelegramID, $"У вас взаимный лайк с @{targetuser.Username}");
 					await bot.SendMessage(targetuser.TelegramID, $"У вас взаимный лайк с @{baseuser.Username}");
-					await DeleteLike(bot, update, db, targetuser);
+					await DeleteLike(update, db, targetuser);
 				}
 			}
 		}
-		public static async Task DeleteLike(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser)
+		public static async Task DeleteLike(Telegram.Bot.Types.Update update, AppDbContext db, UserProfile targetuser)
 		{
 			if(update?.Message?.From == null)
 				return;
@@ -453,17 +453,21 @@ namespace ModesLogic
 			{
 				if (!await db.Users.AnyAsync(reg => reg.TelegramID == update.Message.From.Id))
 				{
-					UserProfile user = new UserProfile();
-					user.Username = update.Message.From.Username;
-					user.TelegramID = update.Message.From.Id;
+					UserProfile user = new()
+					{
+						Username = update.Message.From.Username,
+						TelegramID = update.Message.From.Id
+					};
 					await db.Users.AddAsync(user);
 					await db.SaveChangesAsync();
 				}
 				if (!db.RegistrationStatuses.Any(reg => reg.TelegramId == update.Message.From.Id))
 				{
-					var RegistrationStat = new UserRegistrationService();
-					RegistrationStat.TelegramId = update.Message.From.Id;
-					RegistrationStat.UserRegStatus = 1;
+					var RegistrationStat = new UserRegistrationService
+					{
+						TelegramId = update.Message.From.Id,
+						UserRegStatus = 1
+					};
 					await db.RegistrationStatuses.AddAsync(RegistrationStat);
 					await db.SaveChangesAsync();
 				}

@@ -23,7 +23,8 @@ namespace Handlers
 		{
 			try
 			{
-				using AppDbContext db = new AppDbContext();
+				using AppDbContext db = new();
+				
 				#region Profile registration field
 				if (update.CallbackQuery != null && update.CallbackQuery.Data != null)
 				{
@@ -38,6 +39,7 @@ namespace Handlers
 					await ModesLogic.RespondHandlers.WhenPhotoForProfile(bot, update);
 				}
 				#endregion
+				
 				if (update?.Message?.From != null)
 				{
 					string? text = TelegramBotUtilities.ReturnNewMessage(update);

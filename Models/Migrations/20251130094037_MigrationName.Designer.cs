@@ -11,8 +11,8 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251128075522_NewVersionOfDB")]
-    partial class NewVersionOfDB
+    [Migration("20251130094037_MigrationName")]
+    partial class MigrationName
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

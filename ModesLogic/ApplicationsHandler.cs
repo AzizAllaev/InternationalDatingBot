@@ -95,7 +95,7 @@ namespace ModesLogic
 		#endregion
 
 		#region Answer on update
-		public static async Task AnswerOnFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		public static async Task AnswerOnMFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
 		{
 			if (update?.Message?.From == null)
 				return;
@@ -124,6 +124,25 @@ namespace ModesLogic
 				TelegramBotUtilities.ReturnFullNameConfirmationText(data), 
 				replyMarkup: Keyboards.ContinueOrReturnButton(),
 				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+		}
+
+		public static async Task AnswerOnMPhoneNubmer(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+			string? data = update.Message.Text;
+			if(data == null) 
+				return;
+
+			var application = await db.Applications.FirstOrDefaultAsync(app => app.TelegramID == userId);
+			if (application == null) 
+				return;
+
+			userReg.AppStatus = 2;
+			application.MaleTelegramUserAndPhoneNumber = $"user: {update.Message.From.Username} pn: {data}";
+			await db.SaveChangesAsync();
 		}
 		#endregion
 
