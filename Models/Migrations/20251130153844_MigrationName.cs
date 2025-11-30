@@ -11,6 +11,27 @@ namespace Models.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Applications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TelegramID = table.Column<long>(type: "bigint", nullable: false),
+                    MaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MaleTelegramUserAndPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FemaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FemaleTelegramUserAndPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FemaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FemalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Applications", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Groups",
                 columns: table => new
                 {
@@ -49,42 +70,6 @@ namespace Models.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_TargetPartnerServices", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Applications",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TelegramID = table.Column<long>(type: "bigint", nullable: false),
-                    MaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MalePhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MaleTelegramUser = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MaleGroupId = table.Column<int>(type: "int", nullable: true),
-                    mgroupId = table.Column<int>(type: "int", nullable: true),
-                    MalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FemaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FemaleTelegramUser = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FemaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FemaleGroupId = table.Column<int>(type: "int", nullable: true),
-                    fgroupId = table.Column<int>(type: "int", nullable: true),
-                    FemalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Applications", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Applications_Groups_fgroupId",
-                        column: x => x.fgroupId,
-                        principalTable: "Groups",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Applications_Groups_mgroupId",
-                        column: x => x.mgroupId,
-                        principalTable: "Groups",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -144,7 +129,7 @@ namespace Models.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TelegramId = table.Column<long>(type: "bigint", nullable: false),
-                    userId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<int>(type: "int", nullable: true),
                     UserRegStatus = table.Column<int>(type: "int", nullable: true),
                     AppStatus = table.Column<int>(type: "int", nullable: false)
                 },
@@ -152,21 +137,11 @@ namespace Models.Migrations
                 {
                     table.PrimaryKey("PK_RegistrationStatuses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RegistrationStatuses_Users_userId",
-                        column: x => x.userId,
+                        name: "FK_RegistrationStatuses_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Applications_fgroupId",
-                table: "Applications",
-                column: "fgroupId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Applications_mgroupId",
-                table: "Applications",
-                column: "mgroupId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Likes_FemaleId",
@@ -179,9 +154,9 @@ namespace Models.Migrations
                 column: "MaleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RegistrationStatuses_userId",
+                name: "IX_RegistrationStatuses_UserId",
                 table: "RegistrationStatuses",
-                column: "userId");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_GroupID",

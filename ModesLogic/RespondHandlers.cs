@@ -93,15 +93,20 @@ namespace ModesLogic
 			long userId = update.Message.From.Id;
 			if (userRegStat == null)
 				return;
-			Console.WriteLine("работает");
 			switch (userRegStat.AppStatus)
 			{
 				case 0:
-					await ApplicationsHandler.AnswerOnMFullName(bot, update, db, userRegStat);
-					break;
+					await ApplicationsHandler.AnswerOnLyceumTake(bot, update, db, userRegStat);
+					return;
 				case 1:
-
-					break;
+					await ApplicationsHandler.AnswerOnMFullName(bot, update, db, userRegStat);
+					return;
+				case 2:
+					await ApplicationsHandler.AnswerOnMPhoneNubmer(bot, update, db, userRegStat);
+					return;
+				case 3:
+					
+					return;
 			}
 		}
 		#endregion

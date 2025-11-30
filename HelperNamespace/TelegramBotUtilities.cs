@@ -103,6 +103,19 @@ namespace HelperNamespace
 				$"<b>{data}</b>";
 			return text;
 		}
+		public static string ReturnPhoneNumberAndUsernameConfirmText(string data)
+		{
+			string text = $"Подтвердите номер телефона \n" +
+				$"<b>{data}</b>";
+			
+			return text;
+		}
+		public static string ReturnPurposeConfirmText(string data)
+		{
+			string text = $"Подтвердите: " +
+				$"<i></i>";
+			return text;
+		}
 		#endregion
 
 		#region User handler methods

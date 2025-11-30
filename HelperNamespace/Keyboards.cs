@@ -177,5 +177,18 @@ namespace HelperNamespce
 				OneTimeKeyboard = false
 			};
 		}
+		public static ReplyKeyboardMarkup ChooseLyceum()
+		{
+			return new ReplyKeyboardMarkup(
+			[
+				["IHL🏫"],
+				["IHT👨‍🎓"]
+			])
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
+
 	}
 }

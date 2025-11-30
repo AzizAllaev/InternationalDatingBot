@@ -21,6 +21,7 @@ namespace Handlers
 	{
 		public static async Task HandleUpdateAsync(ITelegramBotClient bot, Update update, CancellationToken clt)
 		{
+
 			try
 			{
 				using AppDbContext db = new();
@@ -45,6 +46,7 @@ namespace Handlers
 					string? text = TelegramBotUtilities.ReturnNewMessage(update);
 					if (text != null)
 					{
+
 						switch (text)
 						{
 							case "/start":
@@ -138,9 +140,12 @@ namespace Handlers
 
 						#region Application methods
 						var regStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == update.Message.From.Id);
+
 						if (regStat != null)
 						{
-							if(regStat.AppStatus < 3 && update.Message.Text != "Подтверждаю☑️" && await ModesHandlers.ReturnModeStatus(update, db) == 6)
+
+
+							if (regStat.AppStatus < 3 && update.Message.Text != "Подтверждаю☑️" && await ModesHandlers.ReturnModeStatus(update, db) == 6)
 							{
 								await RespondHandlers.WhenDataOfMale(bot, update, db, regStat);
 							}

@@ -45,18 +45,33 @@ namespace ModesLogic
 			switch (regStat.AppStatus)
 			{
 				case 0:
-					await TakeMaleFullName(bot, update, db);
-					break;
+					await TakeMaleLyceum(bot, update, db);
+					return;
 				case 1:
-					await TakePhoneNumber(bot, update, db);
-					break;
+					await TakeMaleFullName(bot, update, db);
+					return;
 				case 2:
-					break;
+					await TakeMalePhoneNumber(bot, update, db);
+					return;
 				case 3:
-					break;
+					return;
+				case 4:
+					return;
 			}
 		}
 
+		public static async Task TakeMaleLyceum(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null) 
+				return;
+
+			long userId = update.Message.From.Id;
+
+			await bot.SendMessage(userId, 
+				"Выберите лицей парня:", 
+				replyMarkup: Keyboards.ChooseLyceum()
+				);
+		}
 		public static async Task TakeMaleFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if (update?.Message?.From == null)
@@ -66,7 +81,7 @@ namespace ModesLogic
 
 			await bot.SendMessage(userId, TelegramBotUtilities.ReturnMDataText(), replyMarkup: Keyboards.ContinueApplicationSend(), parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 		}
-		public static async Task TakePhoneNumber(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		public static async Task TakeMalePhoneNumber(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if (update?.Message?.From == null)
 				return;
@@ -80,8 +95,20 @@ namespace ModesLogic
 				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
 				);
 		}
+		public static async Task TakePurpose(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null) 
+				return;
 
-		public static async Task TakeFemaleFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+			long userId = update.Message.From.Id;
+
+			await bot.SendMessage(userId,
+				"Почему вы хотите пойти на зимний бал?",
+				replyMarkup: Keyboards.ContinueOrReturnButton()
+				);
+		}
+		
+			public static async Task TakeFemaleFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if (update?.Message?.From == null)
 				return;
@@ -92,9 +119,36 @@ namespace ModesLogic
 
 			await bot.SendMessage(userId, TelegramBotUtilities.ReturnMDataText(), replyMarkup: Keyboards.ContinueApplicationSend(), parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 		}
+		
+
 		#endregion
 
 		#region Answer on update
+		public static async Task AnswerOnLyceumTake(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		{
+			if (update?.Message?.From == null) 
+				return;
+
+			long userId = update.Message.From.Id;
+			string? data = update.Message.Text;
+			if (data == null)
+				return;
+
+			if (!await db.Applications.AnyAsync(reg => reg.TelegramID == update.Message.From.Id))
+			{
+				await db.Applications.AddAsync(new Application { TelegramID = userId });
+				await db.SaveChangesAsync();
+			}
+
+			var application = await db.Applications.FirstOrDefaultAsync(reg => reg.TelegramID == userId);
+			if (application == null)
+				return;
+
+			userReg.AppStatus = 1;
+			application.MaleLyceumName = data;
+			await db.SaveChangesAsync();
+			await TakeApplication(bot, update, db);
+		}
 		public static async Task AnswerOnMFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
 		{
 			if (update?.Message?.From == null)
@@ -105,17 +159,11 @@ namespace ModesLogic
 			if (data == null)
 				return;
 
-			if(!await db.Applications.AnyAsync(reg => reg.TelegramID == update.Message.From.Id))
-			{
-				await db.Applications.AddAsync(new Application { TelegramID = userId });
-				await db.SaveChangesAsync();
-			}
-
 			var application = await db.Applications.FirstOrDefaultAsync(app => app.TelegramID == userId);
 			if (application == null)
 				return;
 
-			userReg.AppStatus = 1;
+			userReg.AppStatus = 2;
 			application.MaleFullName = data;
 			await db.SaveChangesAsync();
 
@@ -125,7 +173,6 @@ namespace ModesLogic
 				replyMarkup: Keyboards.ContinueOrReturnButton(),
 				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 		}
-
 		public static async Task AnswerOnMPhoneNubmer(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
 		{
 			if (update?.Message?.From == null)
@@ -140,9 +187,40 @@ namespace ModesLogic
 			if (application == null) 
 				return;
 
-			userReg.AppStatus = 2;
+			userReg.AppStatus = 3;
 			application.MaleTelegramUserAndPhoneNumber = $"user: {update.Message.From.Username} pn: {data}";
 			await db.SaveChangesAsync();
+
+			await bot.SendMessage(
+				userId, 
+				TelegramBotUtilities.ReturnPhoneNumberAndUsernameConfirmText(data), 
+				replyMarkup: Keyboards.ContinueOrReturnButton(),
+				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+				);
+		}
+		public static async Task AnswerOnMPurpose(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		{
+			if (update?.Message?.From == null) 
+				return;
+
+			long userId = update.Message.From.Id;
+			string? data = update.Message.Text;
+			if (data == null)
+				return;
+
+			var application = await db.Applications.FirstOrDefaultAsync(app => app.TelegramID == userId);
+			if(application == null) 
+				return;
+
+			application.MalePurpose = data;
+			userReg.AppStatus = 4;
+
+			await db.SaveChangesAsync();
+
+			await bot.SendMessage(
+				userId, 
+				
+				);
 		}
 		#endregion
 

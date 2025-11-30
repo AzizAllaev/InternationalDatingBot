@@ -32,50 +32,31 @@ namespace Models.Migrations
                     b.Property<string>("FemaleFullName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("FemaleGroupId")
-                        .HasColumnType("int");
-
                     b.Property<string>("FemaleLyceumName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FemalePurpose")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FemaleTelegramUser")
+                    b.Property<string>("FemaleTelegramUserAndPhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MaleFullName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("MaleGroupId")
-                        .HasColumnType("int");
-
                     b.Property<string>("MaleLyceumName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MalePhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MalePurpose")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MaleTelegramUser")
+                    b.Property<string>("MaleTelegramUserAndPhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("TelegramID")
                         .HasColumnType("bigint");
 
-                    b.Property<int?>("fgroupId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("mgroupId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("fgroupId");
-
-                    b.HasIndex("mgroupId");
 
                     b.ToTable("Applications");
                 });
@@ -224,21 +205,6 @@ namespace Models.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RegistrationStatuses");
-                });
-
-            modelBuilder.Entity("Models.Application", b =>
-                {
-                    b.HasOne("Models.Group", "fgroup")
-                        .WithMany()
-                        .HasForeignKey("fgroupId");
-
-                    b.HasOne("Models.Group", "mgroup")
-                        .WithMany()
-                        .HasForeignKey("mgroupId");
-
-                    b.Navigation("fgroup");
-
-                    b.Navigation("mgroup");
                 });
 
             modelBuilder.Entity("Models.Like", b =>
