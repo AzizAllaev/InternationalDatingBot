@@ -5,7 +5,7 @@
 namespace Models.Migrations
 {
     /// <inheritdoc />
-    public partial class MigrationName : Migration
+    public partial class AppEntityRemodeled : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -20,11 +20,10 @@ namespace Models.Migrations
                     MaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MaleTelegramUserAndPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PurposeOfMeeting = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FemaleFullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FemaleTelegramUserAndPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FemaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    FemalePurpose = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    FemaleLyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

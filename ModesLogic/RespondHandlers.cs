@@ -97,7 +97,7 @@ namespace ModesLogic
 			switch (userRegStat.AppStatus)
 			{
 				case 0:
-					await ApplicationsHandler.AnswerOnLyceumTake(bot, update, db, userRegStat);
+					await ApplicationsHandler.AnswerOnMLyceumTake(bot, update, db, userRegStat);
 					return;
 				case 1:
 					await ApplicationsHandler.AnswerOnMFullName(bot, update, db, userRegStat);
@@ -107,6 +107,19 @@ namespace ModesLogic
 					return;
 				case 3:
 					await ApplicationsHandler.AnswerOnMPurpose(bot, update, db, userRegStat);
+					return;
+				case 4:
+					await ApplicationsHandler.AnswerOnFLyceumTake(bot, update, db, userRegStat);
+					return;
+				case 5:
+					await ApplicationsHandler.AnswerOnFFullName(bot, update, db, userRegStat);
+					break;
+				case 6: 
+					await ApplicationsHandler.AnswerOnFPhoneNumber(bot, update, db, userRegStat);
+					return;
+				case 7:
+					return;
+				case 8:
 					return;
 			}
 		}

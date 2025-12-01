@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 
 namespace ModesLogic
 {
@@ -54,9 +55,19 @@ namespace ModesLogic
 					await TakeMalePhoneNumber(bot, update, db);
 					return;
 				case 3:
-					await TakePurpose(bot, update, db);
+					await TakeMalePurpose(bot, update, db);
 					return;
 				case 4:
+					await TakeFemaleLyceum(bot, update, db);
+					return;
+				case 5:
+					await TakeFemaleFullName(bot, update, db);
+					return;
+				case 6:
+					await TakeFemalePhoneNumber(bot, update, db);
+					return;
+				case 7:
+
 					return;
 			}
 		}
@@ -91,12 +102,12 @@ namespace ModesLogic
 
 			await bot.SendMessage(
 				userId, 
-				TelegramBotUtilities.ReturnPhoneNumberText(), 
+				TelegramBotUtilities.ReturnMPhoneNumberText(), 
 				replyMarkup: Keyboards.ContinueOrReturnButton(),
 				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
 				);
 		}
-		public static async Task TakePurpose(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		public static async Task TakeMalePurpose(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if (update?.Message?.From == null) 
 				return;
@@ -109,7 +120,19 @@ namespace ModesLogic
 				);
 		}
 		
-			public static async Task TakeFemaleFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		public static async Task TakeFemaleLyceum(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null) 
+				return;
+
+			long userId = update.Message.From.Id;
+
+			await bot.SendMessage(userId,
+				"Выберите лицей девушки:",
+				replyMarkup: Keyboards.ChooseLyceum()
+				);
+		}
+		public static async Task TakeFemaleFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if (update?.Message?.From == null)
 				return;
@@ -118,14 +141,41 @@ namespace ModesLogic
 
 			await db.SaveChangesAsync();
 
-			await bot.SendMessage(userId, TelegramBotUtilities.ReturnMDataText(), replyMarkup: Keyboards.ContinueApplicationSend(), parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+			await bot.SendMessage(userId, TelegramBotUtilities.ReturnFDataText(), replyMarkup: Keyboards.ContinueApplicationSend(), parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
 		}
-		
+		public static async Task TakeFemalePhoneNumber(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null) 
+				return;
 
+			long userId = update.Message.From.Id;
+
+			await bot.SendMessage(
+				userId,
+				TelegramBotUtilities.ReturnFPhoneNumberText(),
+				replyMarkup: Keyboards.ContinueOrReturnButton(),
+				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+				);
+		}
+
+		public static async Task ConfirmApplication(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+			var application = await db.Applications.FirstOrDefaultAsync(app => app.TelegramID == userId);
+			if (application == null)
+				return;
+
+
+		}
 		#endregion
 
 		#region Answer on update
-		public static async Task AnswerOnLyceumTake(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+
+		// Male part
+		public static async Task AnswerOnMLyceumTake(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
 		{
 			if (update?.Message?.From == null) 
 				return;
@@ -213,7 +263,7 @@ namespace ModesLogic
 			if(application == null) 
 				return;
 
-			application.MalePurpose = data;
+			application.PurposeOfMeeting = data;
 			userReg.AppStatus = 4;
 
 			await db.SaveChangesAsync();
@@ -221,6 +271,77 @@ namespace ModesLogic
 			await bot.SendMessage(
 				userId, 
 				TelegramBotUtilities.ReturnPurposeConfirmText(data),
+				replyMarkup: Keyboards.ContinueOrReturnButton(),
+				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+				);
+		}
+
+		// Female part
+		public static async Task AnswerOnFLyceumTake(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		{
+			if(update?.Message?.From == null) 
+				return;
+
+			long userId = update.Message.From.Id;
+			string? data = update.Message.Text;
+			if(data == null) 
+				return;
+
+			var application = await db.Applications.FirstOrDefaultAsync(app => app.TelegramID == userId);
+			if(application == null) 
+				return;
+
+			application.FemaleLyceumName = data;
+			userReg.AppStatus = 5;
+			await db.SaveChangesAsync();
+
+			await TakeApplication(bot, update, db);
+		}
+		public static async Task AnswerOnFFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		{
+			if(update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+			string? data = update.Message.Text;
+			if(data == null) 
+				return;
+
+			var application = await db.Applications.FirstOrDefaultAsync(app => app.TelegramID == userId);
+			if(application == null) 
+				return;
+
+			application.FemaleFullName = data;
+			userReg.AppStatus = 6;
+			await db.SaveChangesAsync();
+
+			await bot.SendMessage(
+				userId,
+				TelegramBotUtilities.ReturnFullNameConfirmationText(data),
+				replyMarkup: Keyboards.ContinueOrReturnButton(),
+				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
+		}
+		public static async Task AnswerOnFPhoneNumber(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		{
+			if(update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+			string? data = update.Message.Text;
+			if(data == null)
+				return;
+
+			var application = await db.Applications.FirstOrDefaultAsync(app => app.TelegramID == userId);
+			if(application == null)
+				return;
+
+			application.FemaleTelegramUserAndPhoneNumber = $"user: {update.Message.From.Username} pn: {data}";
+			userReg.AppStatus = 7;
+			await db.SaveChangesAsync();
+
+			await bot.SendMessage(
+				userId,
+				TelegramBotUtilities.ReturnPhoneNumberAndUsernameConfirmText(data),
 				replyMarkup: Keyboards.ContinueOrReturnButton(),
 				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
 				);

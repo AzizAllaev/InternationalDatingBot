@@ -14,11 +14,11 @@ namespace Models
 		public string? MaleFullName { get; set; }
 		public string? MaleTelegramUserAndPhoneNumber { get; set; }
 		public string? MaleLyceumName { get; set; }
-		public string? MalePurpose { get; set; }
+
+		public string? PurposeOfMeeting { get; set; }
 
 		public string? FemaleFullName { get; set; }
 		public string? FemaleTelegramUserAndPhoneNumber { get; set; }
 		public string? FemaleLyceumName { get; set; }
-		public string? FemalePurpose { get; set; }
 	}
 }

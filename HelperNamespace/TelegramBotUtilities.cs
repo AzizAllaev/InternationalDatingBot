@@ -75,7 +75,7 @@ namespace HelperNamespace
 				"<b>Фамилия Имя Отчество Группа</b>";
 			return text;
 		}
-		public static string ReturnPhoneNumberText()
+		public static string ReturnMPhoneNumberText()
 		{
 			string text = "Введите номер телефона парня в таком виде: \n" +
 				"<b>+998 XX XXX XX XX</b>";
@@ -90,6 +90,14 @@ namespace HelperNamespace
 				"<b>Фамилия Имя Отчество Группа</b>";
 			return text;
 		}
+		public static string ReturnFPhoneNumberText()
+		{
+			string text = "Введите номер телефона девушки в таком виде: \n" +
+				"<b>+998 XX XXX XX XX</b>";
+
+			return text;
+		}
+
 		public static string StudentsWarning()
 		{
 			string text = "⚠️Убедительная просьба, старайтесь вводить данные правильно. Перед отправкой проверьте и перечитайте заявку и после этого отправляйте её⚠️";
@@ -97,6 +105,11 @@ namespace HelperNamespace
 			return text;
 		}
 
+		//public static string ReturnApplicationConfirmationText(Models.Application app)
+		//{
+		//	string text = $"ФИО парня: <b>{app.MaleFullName}</b> \n" +
+		//		$"Телефон: <b>{app.MaleTelegramUserAndPhoneNumber}</b>";
+		//}
 		public static string ReturnFullNameConfirmationText(string data)
 		{
 			string text = $"Подтвердите ФИО и группу: \n" +
@@ -105,7 +118,7 @@ namespace HelperNamespace
 		}
 		public static string ReturnPhoneNumberAndUsernameConfirmText(string data)
 		{
-			string text = $"Подтвердите номер телефона \n" +
+			string text = $"Подтвердите номер телефона: \n" +
 				$"<b>{data}</b>";
 			
 			return text;

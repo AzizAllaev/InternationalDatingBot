@@ -11,8 +11,8 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251130153844_MigrationName")]
-    partial class MigrationName
+    [Migration("20251201185212_AppEntityRemodeled")]
+    partial class AppEntityRemodeled
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,9 +38,6 @@ namespace Models.Migrations
                     b.Property<string>("FemaleLyceumName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FemalePurpose")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("FemaleTelegramUserAndPhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -50,10 +47,10 @@ namespace Models.Migrations
                     b.Property<string>("MaleLyceumName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MalePurpose")
+                    b.Property<string>("MaleTelegramUserAndPhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MaleTelegramUserAndPhoneNumber")
+                    b.Property<string>("PurposeOfMeeting")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("TelegramID")

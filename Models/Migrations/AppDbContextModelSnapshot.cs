@@ -35,9 +35,6 @@ namespace Models.Migrations
                     b.Property<string>("FemaleLyceumName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FemalePurpose")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("FemaleTelegramUserAndPhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
@@ -47,10 +44,10 @@ namespace Models.Migrations
                     b.Property<string>("MaleLyceumName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MalePurpose")
+                    b.Property<string>("MaleTelegramUserAndPhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MaleTelegramUserAndPhoneNumber")
+                    b.Property<string>("PurposeOfMeeting")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("TelegramID")
