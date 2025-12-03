@@ -11,8 +11,8 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251203055221_ApplicationEntityChange")]
-    partial class ApplicationEntityChange
+    [Migration("20251203110504_NewBD")]
+    partial class NewBD
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

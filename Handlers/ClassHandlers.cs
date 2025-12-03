@@ -51,7 +51,7 @@ namespace Handlers
 						{
 							case "/start":
 								await ModesHandlers.ChangeModeStatus(update, db, 0);
-								await ModesHandlers.MainMenuMode(bot, update, clt);
+								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
 								return;
 							case "Оставить заявку🪧":
 								//await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
