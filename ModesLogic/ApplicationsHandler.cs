@@ -24,7 +24,25 @@ namespace ModesLogic
 
 			await bot.SendMessage(userId, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
 		}
+		public static async Task Return(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return;
 
+			var userId = update.Message.From.Id;
+
+			var userReg = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == userId);
+			if (userReg == null)
+				return;
+
+			if (userReg.AppStatus > 0)
+			{
+				userReg.AppStatus -= 1;
+				await db.SaveChangesAsync();
+			}
+
+			await ApplicationsHandler.TakeApplication(bot, update, db);
+		}
 
 		#region Data takers
 		public static async Task TakeApplication(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
@@ -399,25 +417,5 @@ namespace ModesLogic
 		}
 
 		#endregion
-
-		public static async Task Return(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
-		{
-			if(update?.Message?.From == null) 
-				return;
-
-			var userId = update.Message.From.Id;
-
-			var userReg = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == userId);
-			if(userReg == null) 
-				return;
-
-			if(userReg.AppStatus > 0)
-			{
-				userReg.AppStatus -= 1;
-				await db.SaveChangesAsync();
-			}
-
-			await ApplicationsHandler.TakeApplication(bot, update, db);
-		}
 	}
 }
