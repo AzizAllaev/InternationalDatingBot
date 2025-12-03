@@ -118,6 +118,7 @@ namespace ModesLogic
 					await ApplicationsHandler.AnswerOnFPhoneNumber(bot, update, db, userRegStat);
 					return;
 				case 7:
+					//await ApplicationsHandler.
 					return;
 				case 8:
 					return;

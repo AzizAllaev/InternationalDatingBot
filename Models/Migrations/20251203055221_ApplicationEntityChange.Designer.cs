@@ -11,8 +11,8 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251201185212_AppEntityRemodeled")]
-    partial class AppEntityRemodeled
+    [Migration("20251203055221_ApplicationEntityChange")]
+    partial class ApplicationEntityChange
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,6 +31,9 @@ namespace Models.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationStatus")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FemaleFullName")
                         .HasColumnType("nvarchar(max)");

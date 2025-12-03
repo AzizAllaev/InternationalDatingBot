@@ -105,11 +105,14 @@ namespace HelperNamespace
 			return text;
 		}
 
-		//public static string ReturnApplicationConfirmationText(Models.Application app)
-		//{
-		//	string text = $"ФИО парня: <b>{app.MaleFullName}</b> \n" +
-		//		$"Телефон: <b>{app.MaleTelegramUserAndPhoneNumber}</b>";
-		//}
+		public static string ReturnApplicationConfirmationText(Models.Application app)
+		{
+			string text = $"ФИО парня: {app.MaleFullName}\n" +
+				$"ФИО девушки: {app.FemaleFullName}\n" +
+				$"Прочитайте внимательно есть ли ошибки";
+
+			return text;
+		}
 		public static string ReturnFullNameConfirmationText(string data)
 		{
 			string text = $"Подтвердите ФИО и группу: \n" +

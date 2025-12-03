@@ -67,6 +67,12 @@ namespace Handlers
 							case "Заново":
 								await ApplicationsHandler.Return(bot, update, db);
 								return;
+							case "Данные неверные, заполню заново❌":
+								await ApplicationsHandler.MakeApplicationAgain(bot, update, db);
+								return;
+							case "Я подтверждаю, данные верные☑️":
+								await ApplicationsHandler.SendApplication(bot, update, db);
+								return;
 							case "Дополнительные функции":
 								if (!await ModesHandlers.CheckStatus(update, db))
 								{

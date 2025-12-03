@@ -67,7 +67,7 @@ namespace ModesLogic
 					await TakeFemalePhoneNumber(bot, update, db);
 					return;
 				case 7:
-
+					await ConfirmApplication(bot, update, db);
 					return;
 			}
 		}
@@ -168,7 +168,23 @@ namespace ModesLogic
 			if (application == null)
 				return;
 
-
+			if (application.MaleFullName == null && application.FemaleFullName == null)
+			{
+				await bot.SendMessage(
+					chatId: userId,
+					text: TelegramBotUtilities.ReturnApplicationConfirmationText(application),
+					replyMarkup: Keyboards.ConfirmApplicationButtons(),
+					parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+					);
+			}
+			else
+			{
+				await bot.SendMessage(
+					userId,
+					TelegramBotUtilities.ReturnApplicationConfirmationText(application),
+					replyMarkup: Keyboards.ConfirmApplicationButtons()
+					);
+			}
 		}
 		#endregion
 
@@ -239,7 +255,7 @@ namespace ModesLogic
 				return;
 
 			userReg.AppStatus = 3;
-			application.MaleTelegramUserAndPhoneNumber = $"user: {update.Message.From.Username} pn: {data}";
+			application.MaleTelegramUserAndPhoneNumber = $"sender user: {update.Message.From.Username} pn: {data}";
 			await db.SaveChangesAsync();
 
 			await bot.SendMessage(
@@ -335,7 +351,7 @@ namespace ModesLogic
 			if(application == null)
 				return;
 
-			application.FemaleTelegramUserAndPhoneNumber = $"user: {update.Message.From.Username} pn: {data}";
+			application.FemaleTelegramUserAndPhoneNumber = $"sender user: {update.Message.From.Username} pn: {data}";
 			userReg.AppStatus = 7;
 			await db.SaveChangesAsync();
 
@@ -346,8 +362,39 @@ namespace ModesLogic
 				parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
 				);
 		}
+
 		#endregion
 
+		#region Application confirm methods
+		public static async Task SendApplication(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+			var userReg = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == update.Message.From.Id);
+			if(userReg == null) 
+				return;
+
+			await bot.SendMessage(userId, "Отправка заявки...");
+		}
+		public static async Task MakeApplicationAgain(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+			var userReg = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == update.Message.From.Id);
+			if(userReg == null) 
+				return;
+
+			userReg.AppStatus = 0;
+			await db.SaveChangesAsync();
+
+			await TakeApplication(bot, update, db);
+		}
+
+		#endregion
 		public static async Task Return(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if(update?.Message?.From == null) 

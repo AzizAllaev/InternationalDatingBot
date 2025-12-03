@@ -29,6 +29,9 @@ namespace Models.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("ApplicationStatus")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FemaleFullName")
                         .HasColumnType("nvarchar(max)");
 

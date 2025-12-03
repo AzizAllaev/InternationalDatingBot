@@ -189,6 +189,17 @@ namespace HelperNamespce
 				OneTimeKeyboard = false
 			};
 		}
-
+		public static ReplyKeyboardMarkup ConfirmApplicationButtons()
+		{
+			return new ReplyKeyboardMarkup(
+			[
+				["Я подтверждаю, данные верные☑️"],
+				["Данные неверные, заполню заново❌"]
+			])
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
 	}
 }

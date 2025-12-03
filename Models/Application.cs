@@ -20,5 +20,7 @@ namespace Models
 		public string? FemaleFullName { get; set; }
 		public string? FemaleTelegramUserAndPhoneNumber { get; set; }
 		public string? FemaleLyceumName { get; set; }
+
+		public string? ApplicationStatus { get; set; }
 	}
 }
