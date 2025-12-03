@@ -1,6 +1,7 @@
 ﻿using HelperNamespace;
 using HelperNamespce;
 using Microsoft.EntityFrameworkCore;
+using ModesLogic;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -373,10 +374,13 @@ namespace ModesLogic
 
 			long userId = update.Message.From.Id;
 			var userReg = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == update.Message.From.Id);
-			if(userReg == null) 
+			var application = await db.Applications.FirstOrDefaultAsync(application => application.TelegramID == userId);
+			if (userReg == null || application == null) 
 				return;
 
-			await bot.SendMessage(userId, "Отправка заявки...");
+			var service = GoogleApiHandler.ConnectToSheets(@"C:\Enviromentals\plucky-sector-449218-h4-c705fa2c3892.json");
+
+			await GoogleApiHandler.AddRow(service, application, "1iH-mAFuS0jKeMLxfc0lO3Lk-zLo8K7czOjIhM2_zbA8", "Лист1!A1");
 		}
 		public static async Task MakeApplicationAgain(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
@@ -395,6 +399,7 @@ namespace ModesLogic
 		}
 
 		#endregion
+
 		public static async Task Return(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
 			if(update?.Message?.From == null) 

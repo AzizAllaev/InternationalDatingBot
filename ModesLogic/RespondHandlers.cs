@@ -90,7 +90,6 @@ namespace ModesLogic
 		{
 			if (update?.Message?.From == null)
 				return;
-			long userId = update.Message.From.Id;
 			if (userRegStat == null)
 				return;
 			
