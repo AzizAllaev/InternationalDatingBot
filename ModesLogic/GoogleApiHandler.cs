@@ -33,20 +33,24 @@ namespace ModesLogic
 
 		public static async Task AddRow(SheetsService service, Application app, string sheetId, string table)
 		{
-			if (app.MaleFullName == null || app.FemaleFullName == null || app.FemaleLyceumName == null || app.MaleLyceumName == null || app.PurposeOfMeeting == null)
+			if (app.MaleFullName == null || app.FemaleFullName == null || app.FemaleLyceumName == null || app.MaleLyceumName == null || app.PurposeOfMeeting == null || app.MaleTelegramUserAndPhoneNumber == null)
 				return;
 
 			var data = new ValueRange
 			{
 				Values = new List<IList<object>>
 				{
-					new List<object> { app.Id, app.TelegramID, app.MaleFullName, app.MaleLyceumName, app.FemaleFullName, app.FemaleLyceumName, app.PurposeOfMeeting }
+					new List<object> { app.Id, app.TelegramID, app.MaleFullName, app.MaleTelegramUserAndPhoneNumber, app.MaleLyceumName, app.FemaleFullName, app.FemaleLyceumName, app.PurposeOfMeeting }
 				}
 			};
 
 			var request = service.Spreadsheets.Values.Append(data, sheetId, table);
 			request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
 			await request.ExecuteAsync();
+		}
+		public static async Task CheckApplication(SheetsService service, long TelegramID)
+		{
+
 		}
 	}
 }

@@ -195,5 +195,8 @@ namespace HelperNamespace
 			}
 		}
 		#endregion
+
+		#region Enviromental variables
+		#endregion
 	}
 }

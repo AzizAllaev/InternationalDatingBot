@@ -12,6 +12,7 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using static System.Net.Mime.MediaTypeNames;
 
 
 
@@ -55,6 +56,16 @@ namespace Handlers
 								return;
 							case "Оставить заявку🪧":
 								//await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
+								if(await db.Applications.AnyAsync(app => app.TelegramID == update.Message.From.Id))
+								{
+									await bot.SendMessage(
+										update.Message.From.Id,
+										"Ваша заявка принята✅\n" +
+										"Статус: <b>На рассмотрении</b>⏲️",
+										parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+										);
+									return;
+								}
 								await bot.SendMessage(update.Message.From.Id, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
 								return;
 							case "Я прочитал":
@@ -70,6 +81,9 @@ namespace Handlers
 							case "Данные неверные, заполню заново❌":
 								await ApplicationsHandler.MakeApplicationAgain(bot, update, db);
 								return;
+							case "Заполнить заявку заново":
+								await ApplicationsHandler.MakeApplicationAgain(bot, update, db);
+								break;
 							case "Я подтверждаю, данные верные☑️":
 								await ApplicationsHandler.SendApplication(bot, update, db);
 								return;

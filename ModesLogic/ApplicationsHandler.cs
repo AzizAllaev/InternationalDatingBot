@@ -185,7 +185,10 @@ namespace ModesLogic
 			long userId = update.Message.From.Id;
 			var application = await db.Applications.FirstOrDefaultAsync(app => app.TelegramID == userId);
 			if (application == null)
+			{
+				await bot.SendMessage(userId, "Ошибка отправки попробуйте ещё раз", replyMarkup: Keyboards.MakeAppAgain());
 				return;
+			}
 
 			if (application.MaleFullName == null && application.FemaleFullName == null)
 			{
@@ -397,8 +400,13 @@ namespace ModesLogic
 				return;
 
 			var service = GoogleApiHandler.ConnectToSheets(@"C:\Enviromentals\plucky-sector-449218-h4-c705fa2c3892.json");
+			if(application.ApplicationStatus != "ApplicationSended")
+				await GoogleApiHandler.AddRow(service, application, "1iH-mAFuS0jKeMLxfc0lO3Lk-zLo8K7czOjIhM2_zbA8", "Лист1!A1");
 
-			await GoogleApiHandler.AddRow(service, application, "1iH-mAFuS0jKeMLxfc0lO3Lk-zLo8K7czOjIhM2_zbA8", "Лист1!A1");
+			application.ApplicationStatus = "ApplicationSended";
+			await db.SaveChangesAsync();
+			
+			await bot.SendMessage(userId, "<b><i>Ваша заявка отправлена</i></b>✔️", parseMode: Telegram.Bot.Types.Enums.ParseMode.Html, replyMarkup: Keyboards.MainOptions());
 		}
 		public static async Task MakeApplicationAgain(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
 		{
@@ -415,7 +423,6 @@ namespace ModesLogic
 
 			await TakeApplication(bot, update, db);
 		}
-
 		#endregion
 	}
 }

@@ -202,5 +202,16 @@ namespace HelperNamespce
 				OneTimeKeyboard = false
 			};
 		}
+		public static ReplyKeyboardMarkup MakeAppAgain()
+		{
+			return new ReplyKeyboardMarkup(
+			[
+				["Заполнить заявку заново"]
+			])
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
 	}
 }
