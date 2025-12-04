@@ -48,9 +48,9 @@ namespace ModesLogic
 			request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
 			await request.ExecuteAsync();
 		}
-		public static async Task CheckApplication(SheetsService service, long TelegramID)
-		{
+		//public static async Task CheckApplication(SheetsService service, long TelegramID)
+		//{
 
-		}
+		//}
 	}
 }
