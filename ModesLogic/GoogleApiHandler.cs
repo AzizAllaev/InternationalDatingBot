@@ -30,7 +30,6 @@ namespace ModesLogic
 
 			return service;
 		}
-
 		public static async Task AddRow(SheetsService service, Application app, string sheetId, string table)
 		{
 			if (app.MaleFullName == null || app.FemaleFullName == null || app.FemaleLyceumName == null || app.MaleLyceumName == null || app.PurposeOfMeeting == null || app.MaleTelegramUserAndPhoneNumber == null)
@@ -48,9 +47,5 @@ namespace ModesLogic
 			request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
 			await request.ExecuteAsync();
 		}
-		//public static async Task CheckApplication(SheetsService service, long TelegramID)
-		//{
-
-		//}
 	}
 }
