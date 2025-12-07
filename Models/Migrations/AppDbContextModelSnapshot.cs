@@ -61,6 +61,28 @@ namespace Models.Migrations
                     b.ToTable("Applications");
                 });
 
+            modelBuilder.Entity("Models.Attendance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FullNameAndGroup")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TelegramID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Attendances");
+                });
+
             modelBuilder.Entity("Models.Group", b =>
                 {
                     b.Property<int>("Id")
@@ -188,7 +210,10 @@ namespace Models.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppStatus")
+                    b.Property<int?>("AppStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("AttendanceStatus")
                         .HasColumnType("int");
 
                     b.Property<long>("TelegramId")

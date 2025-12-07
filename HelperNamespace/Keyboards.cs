@@ -136,6 +136,7 @@ namespace HelperNamespce
 			return new ReplyKeyboardMarkup(
 			[
 				["Оставить заявку🪧"],
+				["Я хочу участвовать в зимнем бале🎆"],
 				["Дополнительные функции"]
 			])
 			{
@@ -207,6 +208,29 @@ namespace HelperNamespce
 			return new ReplyKeyboardMarkup(
 			[
 				["Заполнить заявку заново"]
+			])
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
+		public static ReplyKeyboardMarkup StartAttendance()
+		{
+			return new ReplyKeyboardMarkup(
+			[
+				["Я прочитал, перейти к заполнению👍"]
+			])
+			{
+				ResizeKeyboard = true,
+				OneTimeKeyboard = false
+			};
+		}
+		public static ReplyKeyboardMarkup ConfirmAttendance()
+		{
+			return new ReplyKeyboardMarkup(
+			[
+				["Все верно"],
+				["Заполнить заново❌"]
 			])
 			{
 				ResizeKeyboard = true,

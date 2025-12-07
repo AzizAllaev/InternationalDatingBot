@@ -5,7 +5,7 @@
 namespace Models.Migrations
 {
     /// <inheritdoc />
-    public partial class newDB : Migration
+    public partial class MigrationName : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,6 +29,21 @@ namespace Models.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Applications", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Attendances",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TelegramID = table.Column<long>(type: "bigint", nullable: false),
+                    FullNameAndGroup = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Attendances", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -131,7 +146,8 @@ namespace Models.Migrations
                     TelegramId = table.Column<long>(type: "bigint", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: true),
                     UserRegStatus = table.Column<int>(type: "int", nullable: true),
-                    AppStatus = table.Column<int>(type: "int", nullable: false)
+                    AppStatus = table.Column<int>(type: "int", nullable: true),
+                    AttendanceStatus = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -169,6 +185,9 @@ namespace Models.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Applications");
+
+            migrationBuilder.DropTable(
+                name: "Attendances");
 
             migrationBuilder.DropTable(
                 name: "Likes");

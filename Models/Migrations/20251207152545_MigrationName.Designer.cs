@@ -11,8 +11,8 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251204060114_newDB")]
-    partial class newDB
+    [Migration("20251207152545_MigrationName")]
+    partial class MigrationName
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -62,6 +62,28 @@ namespace Models.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Applications");
+                });
+
+            modelBuilder.Entity("Models.Attendance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FullNameAndGroup")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TelegramID")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Attendances");
                 });
 
             modelBuilder.Entity("Models.Group", b =>
@@ -191,7 +213,10 @@ namespace Models.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppStatus")
+                    b.Property<int?>("AppStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("AttendanceStatus")
                         .HasColumnType("int");
 
                     b.Property<long>("TelegramId")

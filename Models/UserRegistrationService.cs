@@ -13,6 +13,7 @@ namespace Models
 		public UserProfile? User { get; set; }
 
 		public int? UserRegStatus { get; set; }
-		public int AppStatus { get; set; }
+		public int? AppStatus { get; set; }
+		public int? AttendanceStatus { get; set; }
 	}
 }

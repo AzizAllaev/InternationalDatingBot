@@ -47,5 +47,22 @@ namespace ModesLogic
 			request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
 			await request.ExecuteAsync();
 		}
+		public static async Task AddAttendanceRow(SheetsService service, Attendance att, string sheetId, string table)
+		{
+			if (att.FullNameAndGroup == null)
+				return;
+
+			var data = new ValueRange
+			{
+				Values = new List<IList<object>>
+				{
+					new List<object> { att.Id, att.FullNameAndGroup }
+				}
+			};
+
+			var request = service.Spreadsheets.Values.Append(data, sheetId, table);
+			request.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
+			await request.ExecuteAsync();
+		}
 	}
 }

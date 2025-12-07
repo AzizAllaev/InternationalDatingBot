@@ -104,6 +104,12 @@ namespace HelperNamespace
 
 			return text;
 		}
+		public static string StudentsWarningatAttendance()
+		{
+			string text = "Убедительная просьба вводить данные корректно, начиная от имени заканчивая группой. Вводите группу в таком виде 1ВТН1, 2ЭК1 ровно так как они пишутся в документах";
+
+			return text;
+		}
 
 		public static string ReturnApplicationConfirmationText(Models.Application app)
 		{
@@ -130,6 +136,14 @@ namespace HelperNamespace
 		{
 			string text = $"Подтвердите: \n" +
 				$"<i>{data}</i>";
+			return text;
+		}
+
+		public static string ReturnAttendanceText()
+		{
+			string text;
+			text = "Укажите ФИО и группу в таком виде:\n" +
+				"<b>Иван Иванович Иванов 1ТН1</b>";
 			return text;
 		}
 		#endregion

@@ -87,6 +87,17 @@ namespace Handlers
 							case "Я подтверждаю, данные верные☑️":
 								await ApplicationsHandler.SendApplication(bot, update, db);
 								return;
+
+							case "Я хочу участвовать в зимнем бале🎆":
+								await AttendanceService.AttendanceTaker(bot, update, db);
+								return;
+							case "Все верно":
+								await AttendanceService.SendAttendance(bot, update, db);
+								return;
+							case "Заполнить заново❌":
+								await AttendanceService.MakeAttendanceAgain(bot, update, db);
+								return;
+
 							case "Дополнительные функции":
 								if (!await ModesHandlers.CheckStatus(update, db))
 								{
@@ -101,7 +112,6 @@ namespace Handlers
 									throw new Exception("After /start user is not found");
 								}
 								return;
-
 							case "Анкета👤":
 								await ModesHandlers.ChangeModeStatus(update, db, 1);
 								await ModesHandlers.ProfileMode(bot, update, clt, db);
@@ -168,6 +178,12 @@ namespace Handlers
 								
 								await RespondHandlers.WhenDataOfMale(bot, update, db, regStat);
 							}
+						}
+						#endregion
+						#region Attendance methods
+						if (regStat?.AttendanceStatus != null)
+						{
+							await RespondHandlers.WhenDataOfAttendance(bot, update, db, regStat);
 						}
 						#endregion
 					}

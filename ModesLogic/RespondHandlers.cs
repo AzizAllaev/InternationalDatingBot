@@ -124,5 +124,24 @@ namespace ModesLogic
 			}
 		}
 		#endregion
+
+		#region Attendance methods
+		public static async Task WhenDataOfAttendance(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userRegStat)
+		{
+			if (update?.Message?.From == null)
+				return;
+			if (userRegStat == null)
+				return;
+
+			switch (userRegStat.AttendanceStatus)
+			{
+				case 0:
+					await AttendanceService.AnswerOnAttendance(bot, update, db, userRegStat);
+					return;
+				case 1:
+					return;
+			}
+		}
+		#endregion
 	}
 }

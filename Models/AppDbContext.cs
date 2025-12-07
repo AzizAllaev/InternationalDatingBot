@@ -27,6 +27,7 @@ namespace Models
 		public DbSet<ModeService> ModeServices { get; set; }
 		public DbSet<TargetPartnerService> TargetPartnerServices { get; set; }
 		public DbSet<Application> Applications { get; set; }
+		public DbSet<Attendance> Attendances { get; set; }
 
 		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 		{

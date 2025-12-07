@@ -59,9 +59,14 @@ namespace ModesLogic
 			}
 
 			var regStat = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == userId);
+			
 			if (regStat == null)
 				return;
-
+			if (regStat.AppStatus == null)
+			{
+				regStat.AppStatus = 0;
+				await db.SaveChangesAsync();
+			}
 			switch (regStat.AppStatus)
 			{
 				case 0:
@@ -220,6 +225,7 @@ namespace ModesLogic
 
 			long userId = update.Message.From.Id;
 			string? data = update.Message.Text;
+
 			if (data == null)
 				return;
 
@@ -394,9 +400,8 @@ namespace ModesLogic
 				return;
 
 			long userId = update.Message.From.Id;
-			var userReg = await db.RegistrationStatuses.FirstOrDefaultAsync(reg => reg.TelegramId == update.Message.From.Id);
 			var application = await db.Applications.FirstOrDefaultAsync(application => application.TelegramID == userId);
-			if (userReg == null || application == null) 
+			if (application == null) 
 				return;
 
 			var service = GoogleApiHandler.ConnectToSheets(@"C:\Enviromentals\plucky-sector-449218-h4-c705fa2c3892.json");
