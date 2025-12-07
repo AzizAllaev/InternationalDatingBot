@@ -54,19 +54,19 @@ namespace Handlers
 								await ModesHandlers.ChangeModeStatus(update, db, 0);
 								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
 								return;
-							case "Оставить заявку🪧":
-								//await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
-								if(await db.Applications.AnyAsync(app => app.TelegramID == update.Message.From.Id))
-								{
-									await bot.SendMessage(
-										update.Message.From.Id,
-										"Ваша заявка принята✅\n" +
-										"Статус: <b>На рассмотрении</b>⏲️",
-										parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
-										);
-									return;
-								}
-								await bot.SendMessage(update.Message.From.Id, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
+							case "Зарегистрировать пару🪧":
+								await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
+								//if(await db.Applications.AnyAsync(app => app.TelegramID == update.Message.From.Id))
+								//{
+								//	await bot.SendMessage(
+								//		update.Message.From.Id,
+								//		"Ваша заявка принята✅\n" +
+								//		"Статус: <b>На рассмотрении</b>⏲️",
+								//		parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+								//		);
+								//	return;
+								//}
+								//await bot.SendMessage(update.Message.From.Id, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
 								return;
 							case "Я прочитал":
 								await ModesHandlers.ChangeModeStatus(update, db, 6);
@@ -88,7 +88,7 @@ namespace Handlers
 								await ApplicationsHandler.SendApplication(bot, update, db);
 								return;
 
-							case "Я хочу участвовать в зимнем бале🎆":
+							case "Подтвердить участие✅":
 								await AttendanceService.AttendanceTaker(bot, update, db);
 								return;
 							case "Все верно":
@@ -99,18 +99,19 @@ namespace Handlers
 								return;
 
 							case "Дополнительные функции":
-								if (!await ModesHandlers.CheckStatus(update, db))
-								{
-									await ModesHandlers.StartUserRegistration(bot, update, clt, db);
-								}
-								else if (await ModesHandlers.CheckStatus(update, db))
-								{
-									await ModesHandlers.MainMenuMode(bot, update, clt);
-								}
-								else
-								{
-									throw new Exception("After /start user is not found");
-								}
+								await bot.SendMessage(update.Message.From.Id, "Данная функция будет доступна после открытия регестрации");
+								//if (!await ModesHandlers.CheckStatus(update, db))
+								//{
+								//	await ModesHandlers.StartUserRegistration(bot, update, clt, db);
+								//}
+								//else if (await ModesHandlers.CheckStatus(update, db))
+								//{
+								//	await ModesHandlers.MainMenuMode(bot, update, clt);
+								//}
+								//else
+								//{
+								//	throw new Exception("After /start user is not found");
+								//}
 								return;
 							case "Анкета👤":
 								await ModesHandlers.ChangeModeStatus(update, db, 1);

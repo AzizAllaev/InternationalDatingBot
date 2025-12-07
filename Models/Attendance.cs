@@ -11,6 +11,7 @@ namespace Models
 		public int Id { get; set; }
 		public long TelegramID { get; set; }
 		public string? FullNameAndGroup { get; set; }
+		public string? LyceumName { get; set; }
 		public string? Status { get; set; }
 	}
 }

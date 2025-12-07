@@ -136,9 +136,12 @@ namespace ModesLogic
 			switch (userRegStat.AttendanceStatus)
 			{
 				case 0:
-					await AttendanceService.AnswerOnAttendance(bot, update, db, userRegStat);
+					await AttendanceService.AnswerOnLyceum(bot, update, db, userRegStat);
 					return;
 				case 1:
+					await AttendanceService.AnswerOnAttendance(bot, update, db, userRegStat);
+					return;
+				case 2:
 					return;
 			}
 		}

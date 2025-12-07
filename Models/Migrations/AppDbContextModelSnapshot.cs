@@ -72,6 +72,9 @@ namespace Models.Migrations
                     b.Property<string>("FullNameAndGroup")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("LyceumName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 

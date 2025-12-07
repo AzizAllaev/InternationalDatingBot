@@ -11,7 +11,7 @@ using Models;
 namespace Models.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251207152545_MigrationName")]
+    [Migration("20251207185823_MigrationName")]
     partial class MigrationName
     {
         /// <inheritdoc />
@@ -73,6 +73,9 @@ namespace Models.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FullNameAndGroup")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LyceumName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")

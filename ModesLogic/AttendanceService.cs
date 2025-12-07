@@ -50,18 +50,33 @@ namespace ModesLogic
 			switch (regStat.AttendanceStatus)
 			{
 				case 0:
-					await TakeFullName(bot, update, db);
-					return;
+					await TakeLyceum(bot, update);
+					break;
 				case 1:
-					await ConfirmAttendance(bot, update, db);
+					await TakeFullName(bot, update);
 					return;
 				case 2:
+					await ConfirmAttendance(bot, update, db);
+					return;
+				case 3:
 					await bot.SendMessage(userId, "<b><i>Ваши данные отправлены</i></b>✅", parseMode: Telegram.Bot.Types.Enums.ParseMode.Html, replyMarkup: Keyboards.MainOptions());
 					return;
 			}
 		}
 
-		public static async Task TakeFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db)
+		public static async Task TakeLyceum(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+
+			await bot.SendMessage(userId,
+				"Выберите ваш лицей:",
+				replyMarkup: Keyboards.ChooseLyceum()
+				);
+		}
+		public static async Task TakeFullName(ITelegramBotClient bot, Telegram.Bot.Types.Update update)
 		{
 			if (update?.Message?.From == null)
 				return;
@@ -73,7 +88,7 @@ namespace ModesLogic
 		#endregion
 
 		#region Respond methods
-		public static async Task AnswerOnAttendance(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		public static async Task AnswerOnLyceum(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
 		{
 			if (update?.Message?.From == null)
 				return;
@@ -86,7 +101,7 @@ namespace ModesLogic
 
 			if (!await db.Attendances.AnyAsync(att => att.TelegramID == userId))
 			{
-				await db.Attendances.AddAsync(new Attendance{ TelegramID = userId });
+				await db.Attendances.AddAsync(new Attendance { TelegramID = userId });
 				await db.SaveChangesAsync();
 			}
 
@@ -94,8 +109,28 @@ namespace ModesLogic
 			if (attendance == null)
 				return;
 
-			attendance.FullNameAndGroup = data;
+			attendance.LyceumName = data;
 			userReg.AttendanceStatus = 1;
+			await db.SaveChangesAsync();
+			await AttendanceTaker(bot, update, db);
+		}
+		public static async Task AnswerOnAttendance(ITelegramBotClient bot, Telegram.Bot.Types.Update update, AppDbContext db, UserRegistrationService userReg)
+		{
+			if (update?.Message?.From == null)
+				return;
+
+			long userId = update.Message.From.Id;
+			string? data = update.Message.Text;
+
+			if (data == null)
+				return;
+
+			var attendance = await db.Attendances.FirstOrDefaultAsync(reg => reg.TelegramID == userId);
+			if (attendance == null)
+				return;
+
+			attendance.FullNameAndGroup = data;
+			userReg.AttendanceStatus = 2;
 			await db.SaveChangesAsync();
 			await AttendanceTaker(bot, update, db);
 		}
@@ -115,7 +150,7 @@ namespace ModesLogic
 			{
 				await GoogleApiHandler.AddAttendanceRow(service, attendance, "1iH-mAFuS0jKeMLxfc0lO3Lk-zLo8K7czOjIhM2_zbA8", "Лист2!A1");
 				attendance.Status = "Sended";
-				userreg.AttendanceStatus = 2;
+				userreg.AttendanceStatus = 3;
 				await db.SaveChangesAsync();
 				await bot.SendMessage(userId, "<b><i>Ваши данные отправлены</i></b>✅", parseMode: Telegram.Bot.Types.Enums.ParseMode.Html, replyMarkup: Keyboards.MainOptions());
 				return;

@@ -39,6 +39,7 @@ namespace Models.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     TelegramID = table.Column<long>(type: "bigint", nullable: false),
                     FullNameAndGroup = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LyceumName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
