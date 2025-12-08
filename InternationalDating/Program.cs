@@ -10,7 +10,10 @@ namespace InternationalDating
     {
         static void Main(string[] args)
         {
-			var bot = new TelegramBotClient("7709122756:AAHs1xvGGrShZ3U0MrJTKMwVsWGjJCfgdls");
+			AppDbContext.EnsureDatabaseCreated();
+
+			string token = File.ReadAllText(@"C:\bot\token.txt");
+			var bot = new TelegramBotClient(token);
 			using var cts = new CancellationTokenSource();
 			bot.StartReceiving(
 				ClassHandlers.HandleUpdateAsync,

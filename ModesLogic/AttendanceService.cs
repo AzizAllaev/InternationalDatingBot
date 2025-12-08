@@ -145,7 +145,7 @@ namespace ModesLogic
 			if (attendance == null || userreg == null)
 				return;
 
-			var service = GoogleApiHandler.ConnectToSheets(@"C:\Enviromentals\plucky-sector-449218-h4-c705fa2c3892.json");
+			var service = GoogleApiHandler.ConnectToSheets(@"C:\bot\plucky-sector-449218-h4-c705fa2c3892.json");
 			if (attendance.Status != "Sended")
 			{
 				await GoogleApiHandler.AddAttendanceRow(service, attendance, "1iH-mAFuS0jKeMLxfc0lO3Lk-zLo8K7czOjIhM2_zbA8", "Лист2!A1");

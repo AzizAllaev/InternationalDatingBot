@@ -49,14 +49,14 @@ namespace ModesLogic
 		}
 		public static async Task AddAttendanceRow(SheetsService service, Attendance att, string sheetId, string table)
 		{
-			if (att.FullNameAndGroup == null)
+			if (att.FullNameAndGroup == null || att.LyceumName == null)
 				return;
 
 			var data = new ValueRange
 			{
 				Values = new List<IList<object>>
 				{
-					new List<object> { att.Id, att.FullNameAndGroup }
+					new List<object> { att.Id, att.LyceumName, att.FullNameAndGroup }
 				}
 			};
 
