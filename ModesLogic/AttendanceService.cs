@@ -148,13 +148,12 @@ namespace ModesLogic
 			var service = GoogleApiHandler.ConnectToSheets(@"C:\bot\plucky-sector-449218-h4-c705fa2c3892.json");
 			if (attendance.Status != "Sended")
 			{
+				await bot.SendMessage(userId, "<b><i>Ваши данные отправлены</i></b>✅", parseMode: Telegram.Bot.Types.Enums.ParseMode.Html, replyMarkup: Keyboards.MainOptions());
 				await GoogleApiHandler.AddAttendanceRow(service, attendance, "1iH-mAFuS0jKeMLxfc0lO3Lk-zLo8K7czOjIhM2_zbA8", "Лист2!A1");
 				attendance.Status = "Sended";
 				userreg.AttendanceStatus = 3;
 				await db.SaveChangesAsync();
-				await bot.SendMessage(userId, "<b><i>Ваши данные отправлены</i></b>✅", parseMode: Telegram.Bot.Types.Enums.ParseMode.Html, replyMarkup: Keyboards.MainOptions());
 				return;
-
 			}
 			else
 			{
