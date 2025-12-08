@@ -83,7 +83,7 @@ namespace ModesLogic
 
 			long userId = update.Message.From.Id;
 
-			await bot.SendMessage(userId, TelegramBotUtilities.ReturnAttendanceText(), Telegram.Bot.Types.Enums.ParseMode.Html);
+			await bot.SendMessage(userId, TelegramBotUtilities.ReturnAttendanceText(), Telegram.Bot.Types.Enums.ParseMode.Html, replyMarkup: new ReplyKeyboardRemove());
 		}
 		#endregion
 
