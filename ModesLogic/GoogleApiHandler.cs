@@ -32,14 +32,14 @@ namespace ModesLogic
 		}
 		public static async Task AddRow(SheetsService service, Application app, string sheetId, string table)
 		{
-			if (app.MaleFullName == null || app.FemaleFullName == null || app.FemaleLyceumName == null || app.MaleLyceumName == null || app.PurposeOfMeeting == null || app.MaleTelegramUserAndPhoneNumber == null)
+			if (app.MaleFullName == null || app.FemaleFullName == null || app.FemaleLyceumName == null || app.MaleLyceumName == null || app.PurposeOfMeeting == null || app.MaleTelegramUserAndPhoneNumber == null || app.FemaleTelegramUserAndPhoneNumber == null)
 				return;
 
 			var data = new ValueRange
 			{
 				Values = new List<IList<object>>
 				{
-					new List<object> { app.Id, app.TelegramID, app.MaleFullName, app.MaleTelegramUserAndPhoneNumber, app.MaleLyceumName, app.FemaleFullName, app.FemaleLyceumName, app.PurposeOfMeeting }
+					new List<object> { app.Id, app.TelegramID, app.MaleFullName, app.MaleTelegramUserAndPhoneNumber, app.MaleLyceumName, app.FemaleFullName, app.FemaleLyceumName, app.FemaleTelegramUserAndPhoneNumber, app.PurposeOfMeeting }
 				}
 			};
 

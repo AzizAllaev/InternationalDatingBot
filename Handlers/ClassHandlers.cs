@@ -55,18 +55,17 @@ namespace Handlers
 								await bot.SendMessage(update.Message.From.Id, "Выберите действие: ", replyMarkup: Keyboards.MainOptions());
 								return;
 							case "Зарегистрировать пару🪧":
-								await bot.SendMessage(update.Message.From.Id, "Регистрация пока ещё не открылась");
-								//if(await db.Applications.AnyAsync(app => app.TelegramID == update.Message.From.Id))
-								//{
-								//	await bot.SendMessage(
-								//		update.Message.From.Id,
-								//		"Ваша заявка принята✅\n" +
-								//		"Статус: <b>На рассмотрении</b>⏲️",
-								//		parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
-								//		);
-								//	return;
-								//}
-								//await bot.SendMessage(update.Message.From.Id, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
+								if (await db.Applications.AnyAsync(app => app.TelegramID == update.Message.From.Id))
+								{
+									await bot.SendMessage(
+										update.Message.From.Id,
+										"Ваша заявка принята✅\n" +
+										"Статус: <b>На рассмотрении</b>⏲️",
+										parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
+										);
+									return;
+								}
+								await bot.SendMessage(update.Message.From.Id, TelegramBotUtilities.StudentsWarning(), replyMarkup: Keyboards.ConfirmButton());
 								return;
 							case "Я прочитал":
 								await ModesHandlers.ChangeModeStatus(update, db, 6);
@@ -89,7 +88,8 @@ namespace Handlers
 								return;
 
 							case "Подтвердить участие✅":
-								await AttendanceService.AttendanceTaker(bot, update, db);
+								//await AttendanceService.AttendanceTaker(bot, update, db);
+								await bot.SendMessage(update.Message.From.Id, "Регистрация участников закончилась❌");
 								return;
 							case "Все верно":
 								await AttendanceService.SendAttendance(bot, update, db);
@@ -99,19 +99,18 @@ namespace Handlers
 								return;
 
 							case "Дополнительные функции":
-								await bot.SendMessage(update.Message.From.Id, "Данная функция будет доступна после открытия регестрации");
-								//if (!await ModesHandlers.CheckStatus(update, db))
-								//{
-								//	await ModesHandlers.StartUserRegistration(bot, update, clt, db);
-								//}
-								//else if (await ModesHandlers.CheckStatus(update, db))
-								//{
-								//	await ModesHandlers.MainMenuMode(bot, update, clt);
-								//}
-								//else
-								//{
-								//	throw new Exception("After /start user is not found");
-								//}
+								if (!await ModesHandlers.CheckStatus(update, db))
+								{
+									await ModesHandlers.StartUserRegistration(bot, update, clt, db);
+								}
+								else if (await ModesHandlers.CheckStatus(update, db))
+								{
+									await ModesHandlers.MainMenuMode(bot, update, clt);
+								}
+								else
+								{
+									throw new Exception("After /start user is not found");
+								}
 								return;
 							case "Анкета👤":
 								await ModesHandlers.ChangeModeStatus(update, db, 1);
