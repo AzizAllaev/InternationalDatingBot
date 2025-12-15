@@ -59,8 +59,7 @@ namespace Handlers
 								{
 									await bot.SendMessage(
 										update.Message.From.Id,
-										"Ваша заявка принята✅\n" +
-										"Статус: <b>На рассмотрении</b>⏲️",
+										"Ваша заявка принята✅",
 										parseMode: Telegram.Bot.Types.Enums.ParseMode.Html
 										);
 									return;
